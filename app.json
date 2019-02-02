@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Volta TZ",
+    "slug": "volta-challenge",
+    "privacy": "public",
+    "sdkVersion": "32.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.thomaszhu.voltachallenge",
+      "publishBundlePath": "ios/volta-tz/Supporting/shell-app.bundle",
+      "publishManifestPath": "ios/volta-tz/Supporting/shell-app-manifest.json"
+    },
+    "android": {
+      "package": "com.thomaszhu.voltachallenge",
+      "publishBundlePath": "android/app/src/main/assets/shell-app.bundle",
+      "publishManifestPath": "android/app/src/main/assets/shell-app-manifest.json"
+    },
+    "isDetached": true,
+    "detach": {
+      "iosExpoViewUrl": "https://s3.amazonaws.com/exp-exponent-view-code/ios-v2.10.2-sdk32.0.0-c59c23cd-1d49-49d2-a633-d03f9d554cf6.tar.gz",
+      "androidExpoViewUrl": "https://s3.amazonaws.com/exp-exponent-view-code/android-v2.10.5-sdk32.0.0-cfdf42e8-f9b5-4ddd-84fd-2f2aacffe2c1.tar.gz"
+    },
+    "scheme": "exp2cb791f3aa3646478a501a6d951886fc"
+  }
+}
