@@ -14,6 +14,20 @@ export type Coordinates = {
   speed: number;
 };
 
+export type GeoJSONLocation = {
+  type: string;
+  geometry: {
+    type: string;
+    coordinates: [number, number]
+  },
+  properties: object;
+}
+
+export type GeoJSonObject = {
+  type: string;
+  features: GeoJSONLocation[];
+};
+
 export type VoltaLocation = {
   type: string;
   coordinates: [number, number];

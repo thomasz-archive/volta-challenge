@@ -4,6 +4,7 @@ import {
   Text,
   View,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
@@ -19,16 +20,15 @@ import { HORIZONTAL_SPACE, VERTICAL_SPACE } from '../values/constants';
 import {
   Bound,
   VoltaSite,
+  GeoJSonObject,
 } from '../values/types';
 import { ReduxState } from '../reducers';
-import { Annotation } from '../components/Annotation';
-import { getVisibleSites } from '../utils/volta_utils';
 import { InfoPane } from '../components/InfoPane';
 
 MapboxGL.setAccessToken(MAP_BOX_API);
 
 type Props = {
-  sites: VoltaSite[],
+  sites: GeoJSonObject,
 };
 
 type State = {
@@ -74,27 +74,40 @@ export class _MapScreen extends React.Component<Props, State> {
     );
   };
 
-  handleRegionDidChange = ({ properties }) => {
-    const { visibleBounds } = properties;
-    const [lng0, lat0] = visibleBounds[0];
-    const [lng1, lat1] = visibleBounds[1];
+  handleMapPress = () => {
+    const { currentSite } = this.state;
+    if (currentSite) this.setState({ currentSite: null });
+  }
 
-    this.setState({
-      bound: {
-        lng0, lat0, lng1, lat1,
-      }
-    });
-  };
-
-  handleOnDismiss = () => {
+  handleDismiss = () => {
     this.setState({ currentSite: null });
   };
 
-  handleOnAnnotationPress = (site: VoltaSite) => {
+  handleShapePress = async (evt) => {
+    const { payload } = evt.nativeEvent;
+    const { properties } = payload;
+    const isShowingSingleSite = (!properties['point_count'] || properties['point_count'] === 1);
+
+    if (isShowingSingleSite) {
+      this.handleSingleSitePress(properties);
+    } else {
+      const { geometry: { coordinates } } = payload;
+      const currentZoom = await this.map.getZoom();
+
+      this.map.setCamera({
+        centerCoordinate: coordinates,
+        zoom: currentZoom + 1.2,
+        duration: 100,
+      })
+    }
+  }
+
+  handleSingleSitePress = (site: VoltaSite) => {
     this.setState((prevState) => {
       const { currentSite } = prevState;
       const dismissCurrentSite = currentSite && currentSite.id === site.id;
       if (!dismissCurrentSite) this.map.moveTo(site.location.coordinates, 350);
+
       return {
         currentSite: dismissCurrentSite ? null : site,
       };
@@ -103,26 +116,43 @@ export class _MapScreen extends React.Component<Props, State> {
 
   render() {
     const { sites } = this.props;
-    const { bound, currentSite, userLocation } = this.state;
+    const { bound, currentSite } = this.state;
     
-    // const visibleSites = getVisibleSites(sites, bound);
-
     return (
       <View style={StyleSheet.absoluteFill}>
         <MapboxGL.MapView
+          onPress={this.handleMapPress}
           ref={(map: MapboxGL.MapView) => this.map = map}
           showUserLocation
           style={StyleSheet.absoluteFill}
           zoomLevel={11}
         >
-          {sites.map((site) => (
-            <Annotation
-              key={site.id}
-              coordinate={site.location.coordinates}
-              onPress={this.handleOnAnnotationPress}
-              site={site}
+          <MapboxGL.ShapeSource
+            id="sites"
+            cluster
+            clusterRadius={10}
+            clusterMaxZoom={14}
+            onPress={this.handleShapePress}
+            shape={sites}
+          >
+            <MapboxGL.SymbolLayer
+              id="pointCount"
+              style={mapboxStyles.clusterCount}
             />
-          ))}
+
+            <MapboxGL.CircleLayer
+              id="clusteredPoints"
+              belowLayerID="pointCount"
+              filter={['has', 'point_count']}
+              style={mapboxStyles.clusteredPoints}
+            />
+
+            <MapboxGL.CircleLayer
+              id="singlePoint"
+              filter={['!has', 'point_count']}
+              style={mapboxStyles.singlePoint}
+            />
+          </MapboxGL.ShapeSource>
         </MapboxGL.MapView>
 
         {currentSite && (
@@ -137,7 +167,6 @@ export class _MapScreen extends React.Component<Props, State> {
             />
           </View>
         </TouchableWithoutFeedback>
-        
       </View>
     );
   }
@@ -158,6 +187,37 @@ const styles = StyleSheet.create({
     width: 40,
     top: 8,
     left: 8,
+  },
+});
+
+const mapboxStyles = MapboxGL.StyleSheet.create({
+  singlePoint: {
+    textColor: `${colors.white}`,
+    textField: '{point_count}',
+    circleColor: `${colors.secondary}`,
+    circleOpacity: 0.84,
+    circleStrokeWidth: 2,
+    circleStrokeColor: 'white',
+    circleRadius: 15,
+    circlePitchAlignment: 'map',
+  },
+
+  clusteredPoints: {
+    circlePitchAlignment: 'map',
+    circleColor: `${colors.black}`,
+    circleRadius: MapboxGL.StyleSheet.source(
+      [[0, 15], [100, 20], [750, 30]],
+      'point_count',
+      MapboxGL.InterpolationMode.Exponential,
+    ),
+    circleOpacity: 0.84,
+  },
+
+  clusterCount: {
+    textColor: `${colors.white}`,
+    textField: '{point_count}',
+    textPitchAlignment: 'map',
+    textSize: 14,
   },
 });
 
