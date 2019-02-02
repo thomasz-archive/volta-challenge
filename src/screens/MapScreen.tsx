@@ -16,9 +16,8 @@ import MapboxGL from '@mapbox/react-native-mapbox-gl';
 
 import { MAP_BOX_API } from '../values/secrets';
 import { colors } from '../values/colors';
-import { HORIZONTAL_SPACE, VERTICAL_SPACE } from '../values/constants';
+import { HORIZONTAL_SPACE } from '../values/constants';
 import {
-  Bound,
   VoltaSite,
   GeoJSonObject,
 } from '../values/types';
@@ -32,7 +31,6 @@ type Props = {
 };
 
 type State = {
-  bound?: Bound;
   currentSite?: VoltaSite,
   userLocation?: [number, number];
 };
@@ -51,7 +49,6 @@ export class _MapScreen extends React.Component<Props, State> {
   });
 
   state = {
-    bound: null,
     currentSite: null,
     userLocation: null,
   };
@@ -65,8 +62,12 @@ export class _MapScreen extends React.Component<Props, State> {
   moveToUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
-        this.map.moveTo([longitude, latitude], 150);
-        this.setState({ userLocation: [longitude, latitude] });
+        this.map.moveTo([longitude, latitude], 350);
+
+        this.setState({
+          currentSite: null,
+          userLocation: [longitude, latitude]
+        });
       },
       (error) => {
         console.log('error', error);
@@ -96,7 +97,7 @@ export class _MapScreen extends React.Component<Props, State> {
 
       this.map.setCamera({
         centerCoordinate: coordinates,
-        zoom: currentZoom + 1.2,
+        zoom: currentZoom + 1.8,
         duration: 100,
       })
     }
@@ -116,7 +117,7 @@ export class _MapScreen extends React.Component<Props, State> {
 
   render() {
     const { sites } = this.props;
-    const { bound, currentSite } = this.state;
+    const { currentSite } = this.state;
     
     return (
       <View style={StyleSheet.absoluteFill}>
@@ -130,7 +131,7 @@ export class _MapScreen extends React.Component<Props, State> {
           <MapboxGL.ShapeSource
             id="sites"
             cluster
-            clusterRadius={10}
+            clusterRadius={8}
             clusterMaxZoom={14}
             onPress={this.handleShapePress}
             shape={sites}
@@ -151,7 +152,7 @@ export class _MapScreen extends React.Component<Props, State> {
               id="singlePoint"
               filter={['!has', 'point_count']}
               style={mapboxStyles.singlePoint}
-            />
+            />            
           </MapboxGL.ShapeSource>
         </MapboxGL.MapView>
 
