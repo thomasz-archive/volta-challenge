@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
@@ -14,7 +15,7 @@ import MapboxGL from '@mapbox/react-native-mapbox-gl';
 
 import { MAP_BOX_API } from '../values/secrets';
 import { colors } from '../values/colors';
-import { HORIZONTAL_SPACE } from '../values/constants';
+import { HORIZONTAL_SPACE, VERTICAL_SPACE } from '../values/constants';
 import {
   Bound,
   VoltaSite,
@@ -58,14 +59,14 @@ export class _MapScreen extends React.Component<Props, State> {
   map: MapboxGL.MapView;
 
   componentDidMount() {
-    this.getLocation();
+    this.moveToUserLocation();
   }
 
-  getLocation = () => {
+  moveToUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
         this.map.moveTo([longitude, latitude], 150);
-        // this.setState({ userLocation: [longitude, latitude] });
+        this.setState({ userLocation: [longitude, latitude] });
       },
       (error) => {
         console.log('error', error);
@@ -93,7 +94,7 @@ export class _MapScreen extends React.Component<Props, State> {
     this.setState((prevState) => {
       const { currentSite } = prevState;
       const dismissCurrentSite = currentSite && currentSite.id === site.id;
-      if (!dismissCurrentSite) this.map.flyTo(site.location.coordinates, 350);
+      if (!dismissCurrentSite) this.map.moveTo(site.location.coordinates, 350);
       return {
         currentSite: dismissCurrentSite ? null : site,
       };
@@ -127,6 +128,16 @@ export class _MapScreen extends React.Component<Props, State> {
         {currentSite && (
           <InfoPane site={currentSite} />
         )}
+
+        <TouchableWithoutFeedback onPress={this.moveToUserLocation}>
+          <View style={styles.reCenterIconContainer}>
+            <MaterialCommunityIcons
+              name="navigation"
+              size={24}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        
       </View>
     );
   }
@@ -137,7 +148,17 @@ const styles = StyleSheet.create({
     color: `${colors.primary}`,
     marginHorizontal: HORIZONTAL_SPACE,
   },
-
+  reCenterIconContainer: {
+    alignItems: 'center',
+    backgroundColor: `${colors.white}`,
+    borderRadius: 20,
+    justifyContent: 'center',
+    position: 'absolute',
+    height: 40,
+    width: 40,
+    top: 8,
+    left: 8,
+  },
 });
 
 export const MapScreen = (() => {

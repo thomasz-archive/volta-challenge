@@ -74,7 +74,7 @@ export class InfoPane extends React.Component<Props & typeof DEFAULT_PROPS, Stat
             </View>
         </TouchableWithoutFeedback>
 
-        <ScrollView>
+        <ScrollView style={styles.scrollView}>
 
         </ScrollView>
       </Animated.View>
@@ -85,8 +85,8 @@ export class InfoPane extends React.Component<Props & typeof DEFAULT_PROPS, Stat
 const styles = StyleSheet.create({
   container: {
     backgroundColor: `${colors.white}`,
-    left: 0,
     position: 'absolute',
+    left: 0,
     right: 0,
   },
   summary: {
@@ -106,5 +106,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textTransform: 'uppercase',
     textAlign: 'left',
+  },
+  scrollView: {
+    flex: 1,
   },
 });
