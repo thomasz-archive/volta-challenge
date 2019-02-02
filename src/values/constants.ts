@@ -1,3 +1,1 @@
-export const constants = {
-	
-};
+export const HORIZONTAL_SPACE = 16;
