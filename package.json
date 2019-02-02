@@ -23,7 +23,8 @@
     "react-navigation": "^3.1.2",
     "react-navigation-redux-helpers": "^2.0.9",
     "react-redux": "^6.0.0",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@types/color": "^3.0.0",
@@ -37,6 +38,7 @@
     "@types/react-navigation": "^3.0.1",
     "@types/react-redux": "^7.0.1",
     "@types/react-test-renderer": "^16.0.3",
+    "@types/redux-thunk": "^2.1.0",
     "babel-preset-expo": "^5.0.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.8.0",

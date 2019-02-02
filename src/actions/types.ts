@@ -1,0 +1,1 @@
+export const VOLTA_LOAD_ALL_SITES = 'VOLTA_LOAD_ALL_SITES';

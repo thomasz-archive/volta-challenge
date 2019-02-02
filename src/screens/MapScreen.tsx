@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  Platform,
   StyleSheet,
+  Text,
   View,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,24 +9,34 @@ import {
   NavigationScreenConfig,
   NavigationScreenOptions,
 } from 'react-navigation';
+import { connect } from 'react-redux';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 
 import { MAP_BOX_API } from '../values/secrets';
 import { colors } from '../values/colors';
-import { Coordinates } from '../values/types';
 import { HORIZONTAL_SPACE } from '../values/constants';
+import {
+  Bound,
+  VoltaSite,
+} from '../values/types';
+import { ReduxState } from '../reducers';
+import { Annotation } from '../components/Annotation';
+import { getVisibleSites } from '../utils/volta_utils';
+import { InfoPane } from '../components/InfoPane';
 
 MapboxGL.setAccessToken(MAP_BOX_API);
 
 type Props = {
-  
+  sites: VoltaSite[],
 };
 
 type State = {
+  bound?: Bound;
+  currentSite?: VoltaSite,
   userLocation?: [number, number];
 };
 
-export class MapScreen extends React.Component<Props, State> {
+export class _MapScreen extends React.Component<Props, State> {
   static navigationOptions: NavigationScreenConfig<NavigationScreenOptions> = ({ navigation }) => ({
     headerLeft: (
       <MaterialCommunityIcons
@@ -40,38 +50,83 @@ export class MapScreen extends React.Component<Props, State> {
   });
 
   state = {
+    bound: null,
+    currentSite: null,
     userLocation: null,
   };
 
+  map: MapboxGL.MapView;
+
   componentDidMount() {
     this.getLocation();
-
-    // load stations
   }
 
   getLocation = () => {
     navigator.geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
-        this.setState({ userLocation: [longitude, latitude] });
+        this.map.moveTo([longitude, latitude], 150);
+        // this.setState({ userLocation: [longitude, latitude] });
       },
       (error) => {
-        // TODO: address this later
         console.log('error', error);
       }
     );
   };
 
+  handleRegionDidChange = ({ properties }) => {
+    const { visibleBounds } = properties;
+    const [lng0, lat0] = visibleBounds[0];
+    const [lng1, lat1] = visibleBounds[1];
+
+    this.setState({
+      bound: {
+        lng0, lat0, lng1, lat1,
+      }
+    });
+  };
+
+  handleOnDismiss = () => {
+    this.setState({ currentSite: null });
+  };
+
+  handleOnAnnotationPress = (site: VoltaSite) => {
+    this.setState((prevState) => {
+      const { currentSite } = prevState;
+      const dismissCurrentSite = currentSite && currentSite.id === site.id;
+      if (!dismissCurrentSite) this.map.flyTo(site.location.coordinates, 350);
+      return {
+        currentSite: dismissCurrentSite ? null : site,
+      };
+    });
+  };
+
   render() {
-    const { userLocation } = this.state;
+    const { sites } = this.props;
+    const { bound, currentSite, userLocation } = this.state;
+    
+    // const visibleSites = getVisibleSites(sites, bound);
 
     return (
       <View style={StyleSheet.absoluteFill}>
         <MapboxGL.MapView
-          centerCoordinate={userLocation}
+          ref={(map: MapboxGL.MapView) => this.map = map}
           showUserLocation
           style={StyleSheet.absoluteFill}
           zoomLevel={11}
-        />
+        >
+          {sites.map((site) => (
+            <Annotation
+              key={site.id}
+              coordinate={site.location.coordinates}
+              onPress={this.handleOnAnnotationPress}
+              site={site}
+            />
+          ))}
+        </MapboxGL.MapView>
+
+        {currentSite && (
+          <InfoPane site={currentSite} />
+        )}
       </View>
     );
   }
@@ -82,4 +137,16 @@ const styles = StyleSheet.create({
     color: `${colors.primary}`,
     marginHorizontal: HORIZONTAL_SPACE,
   },
+
 });
+
+export const MapScreen = (() => {
+  const mapStateToProps = (state: ReduxState) => ({
+    sites: state.sites,
+  });
+
+  const mapDispatchToProps = {};
+
+  return connect(mapStateToProps, mapDispatchToProps)(_MapScreen);
+})();
+

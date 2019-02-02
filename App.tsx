@@ -6,10 +6,12 @@ import {
   View,
   YellowBox,
 } from 'react-native';
-import { Constants } from 'expo';
 import { createAppContainer } from 'react-navigation';
+import { Provider } from 'react-redux';
 
 import { RootDrawer } from './src/navigation/RootDrawer';
+import { store } from './src/store';
+import { DataLoader } from './src/components/DataLoader';
 
 // Innocuous warnings from ExpoKit (https://forums.expo.io/t/unable-to-ios-dev-menu-after-upgrading-to-sdk27-on-expokit/9883/10)
 // TODO: Check back later
@@ -17,20 +19,18 @@ YellowBox.ignoreWarnings(['Class EXHomeModule', 'Class EXTest', 'Class EXDisable
 
 const AppContainer = createAppContainer(RootDrawer);
 
-class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <StatusBar
-          animated={false}
-          barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'}
-        />
+const App = () => (
+  <Provider store={store}>
+    <StatusBar
+      animated={false}
+      barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'}
+    />
 
-        <AppContainer />
-      </View>
-    );
-  }
-}
+    <DataLoader />
+
+    <AppContainer />
+  </Provider>
+);
 
 const styles = StyleSheet.create({
   container: {
