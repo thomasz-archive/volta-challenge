@@ -25,7 +25,11 @@ export const SiteSummary: React.FunctionComponent<Props> = (props) => {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.summary}>
-        <Text style={styles.siteName}>
+        <Text
+          ellipsizeMode="tail"
+          numberOfLines={2}
+          style={styles.siteName}
+        >
           {site.name}
         </Text>
 

@@ -42,6 +42,7 @@ import { SearchScreen } from './SearchScreen';
 MapboxGL.setAccessToken(MAP_BOX_API);
 
 const DEFAULT_ZOOM_LEVEL = 11;
+const MAX_ZOOM_LEVEL = 16;
 const SEARCH_HEIGHT_SCREEN_RATIO = 0.6;
 
 type ClusterParamsType = {
@@ -235,8 +236,13 @@ export class _MapScreen extends React.Component<Props, State> {
 
   handleSelectSearchedSite = (geo: Feature<Point, VoltaSite>) => {
     const { geometry: { coordinates }, properties } = geo;
-    this.map.moveTo(coordinates, 350);
-    
+
+    this.map.setCamera({
+      centerCoordinate: coordinates,
+      zoom: MAX_ZOOM_LEVEL,
+      duration: 350,
+    });
+
     this.setState({
       currentSite: properties,
       isSearching: false,
@@ -287,7 +293,7 @@ export class _MapScreen extends React.Component<Props, State> {
     const { height } = Dimensions.get('window');
     const searchHeight = PixelRatio.roundToNearestPixel(height * SEARCH_HEIGHT_SCREEN_RATIO);
     const searchHeightStyle = {
-      height: searchHeight,
+      maxHeight: searchHeight,
     };
 
     return (
@@ -363,6 +369,7 @@ const styles = StyleSheet.create({
   },
   searchPane: {
     borderRadius: 20,
+    opacity: 0.75,
     padding: 20,
     position: 'absolute',
     left: 8,

@@ -48,6 +48,7 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
 
   componentDidMount() {
     Animated.timing(this.opacity, {
+      duration: 200,
       toValue: 1,
       useNativeDriver: true,
     }).start();
@@ -55,8 +56,11 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
 
   handleChangeText = (searchValue: string) => {
     const { data } = this.props;
+    const result = searchValue ? (
+      data.filter(d => d.properties.name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)
+    ) : [];
     this.setState({
-      result: data.filter(d => d.properties.name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1),
+      result,
       searchValue,
     });
   };
@@ -115,12 +119,15 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
           value={searchValue}
         />
 
-        <FlatList
-          data={result}
-          keyExtractor={({ properties }) => properties.id }
-          renderItem={this.renderSearchItem}
-          ItemSeparatorComponent={Divider}
-        />
+        {!!result.length && (
+          <FlatList
+            data={result}
+            ItemSeparatorComponent={Divider}
+            keyExtractor={({ properties }) => properties.id }
+            renderItem={this.renderSearchItem}
+            style={styles.list}
+          />
+        )}
       </Animated.View>
     );
   }
@@ -128,16 +135,18 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: `${colors.white}`,
+    flex: 1,
   },
   textInput: {
     backgroundColor: `${colors.black.alpha(0.05)}`,
-    marginBottom: 8,
     borderRadius: 8,
     fontSize: 14,
     paddingHorizontal: 16,
     height: 48,
+  },
+  list: {
+    marginTop: 8,
   },
   searchItem: {
     backgroundColor: `${colors.white}`,
