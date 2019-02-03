@@ -7,21 +7,25 @@ import {
 } from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import ProgressCircle from 'react-native-progress-circle'
+import {
+  Feature,
+  GeoJsonProperties,
+  Point,
+} from 'geojson';
 
-import { GeoJSON } from '../values/types';
 import { colors } from '../values/colors';
 import { AntDesign } from '@expo/vector-icons';
 
-const SIZE = 48;
+const ANNOTATION_SIZE = 48;
 
 type Props = {
   availableStations: number;
   totalStations: number;
-  coordinate: [number, number];
+  coordinate: number[];
   id: string;
   isSite?: boolean;
-  onPress: (geo: GeoJSON) => void;
-  site: GeoJSON,
+  onPress: (geo: Feature<Point, GeoJsonProperties>) => void;
+  site: Feature<Point, GeoJsonProperties>,
 };
 
 export const Annotation: React.FunctionComponent<Props> = ({
@@ -39,7 +43,7 @@ export const Annotation: React.FunctionComponent<Props> = ({
           borderWidth={5}
           color={`${colors.secondary}`}
           percent={availableStations / totalStations * 100}
-          radius={SIZE * 0.4}
+          radius={ANNOTATION_SIZE * 0.4}
         >
           <Text style={styles.counterText}>
             {`${availableStations}`}
@@ -62,10 +66,10 @@ const styles = StyleSheet.create({
   annotationContainer: {
     alignItems: 'center',
     backgroundColor: `${colors.black.alpha(0.8)}`,
-    borderRadius: SIZE / 2,
-    height: SIZE,
+    borderRadius: ANNOTATION_SIZE / 2,
+    height: ANNOTATION_SIZE,
     justifyContent: 'center',
-    width: SIZE,
+    width: ANNOTATION_SIZE,
   },
   counterText: {
     color: `${colors.white}`,
@@ -75,6 +79,6 @@ const styles = StyleSheet.create({
   icon: {
     color: `${colors.black.alpha(0.8)}`,
     position: 'absolute',
-    top: SIZE - 4,
+    top: ANNOTATION_SIZE - 4,
   },
 });

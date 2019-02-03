@@ -41,6 +41,7 @@
     "@types/react-redux": "^7.0.1",
     "@types/react-test-renderer": "^16.0.3",
     "@types/redux-thunk": "^2.1.0",
+    "@types/supercluster": "^3.0.2",
     "babel-preset-expo": "^5.0.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.8.0",

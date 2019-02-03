@@ -13,13 +13,18 @@ import {
 } from 'react-navigation';
 import { connect } from 'react-redux';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
-import SuperCluster from 'supercluster'
+import { Supercluster, Cluster } from 'supercluster'
+import {
+  Feature,
+  GeoJsonProperties,
+  Point,
+} from 'geojson';
 
 import { MAP_BOX_API } from '../values/secrets';
 import { colors } from '../values/colors';
 import { HORIZONTAL_SPACE } from '../values/constants';
 import {
-  GeoJSON,
+  Bound,
   GeoJSONCollection,
   MapBoxOnChangeEvent,
   VoltaSite,
@@ -27,11 +32,14 @@ import {
 import { ReduxState } from '../reducers';
 import { SiteInfoPane } from '../components/SiteInfoPane';
 import { Annotation } from '../components/Annotation';
+import { supercluster } from '../utils/supercluster';
 
 MapboxGL.setAccessToken(MAP_BOX_API);
 
+const DEFAULT_ZOOM_LEVEL = 11;
+
 type ClusterParamsType = {
-  bound: [number, number, number, number],
+  bound: Bound,
   zoom: number;
 }
 
@@ -40,9 +48,9 @@ type Props = {
 };
 
 type State = {
-  bound?: [number, number, number, number];
+  bound?: Bound; // [westLng, southLat, eastLng, northLat]
   currentSite?: VoltaSite,
-  data: GeoJSON[],
+  data: Cluster[],
   zoom?: number,
 };
 
@@ -57,12 +65,15 @@ export class _MapScreen extends React.Component<Props, State> {
       />
     ),
     headerTitle:(
-      <Image
-        style={styles.headerLogo}
-        resizeMode="contain"
-        source={require('../../assets/volta_logo.png')}
-      />
+      <View style={styles.headerLogoContainer}> 
+        <Image
+          style={styles.headerLogo}
+          resizeMode="contain"
+          source={require('../../assets/volta_logo.png')}
+        />
+      </View>
     ),
+    headerRight: (<View />),
   });
 
   state = {
@@ -72,7 +83,7 @@ export class _MapScreen extends React.Component<Props, State> {
     zoom: 11,
   };
 
-  cluster: SuperCluster;
+  cluster: Supercluster;
   map: MapboxGL.MapView;
   _isInitialLoad = true;
 
@@ -95,7 +106,7 @@ export class _MapScreen extends React.Component<Props, State> {
           // Find a better solution later.
           this.map.setCamera({
             centerCoordinate: [longitude, latitude],
-            zoom: 11,
+            zoom: DEFAULT_ZOOM_LEVEL,
             duration: 0,
           });
           this._isInitialLoad = false;
@@ -116,26 +127,8 @@ export class _MapScreen extends React.Component<Props, State> {
     );
   };
 
-  initializeCluster = () => {
-    this.cluster = new SuperCluster({
-      maxZoom: 14,
-      initial: () => ({
-        availableStations: 0,
-        totalStations: 0,
-      }),
-      map: (properties: any) => ({
-        availableStations: properties.chargers ? properties.chargers[0].available : 0,
-        totalStations: properties.chargers ? properties.chargers[0].total : 0,
-      }),
-      reduce: (accumulated: any, properties: any) => {
-        accumulated.availableStations += properties.availableStations;
-        accumulated.totalStations += properties.totalStations;
-      },
-    });
-  }
-
-  clusterize = (data: GeoJSON[]) => {
-    if (!this.cluster) this.initializeCluster();
+  clusterize = (data: Feature<Point, GeoJsonProperties>[]) => {
+    if (!this.cluster) this.cluster = supercluster.init();
     this.cluster.load(data);
 
     const { bound, zoom } = this.state;
@@ -146,20 +139,12 @@ export class _MapScreen extends React.Component<Props, State> {
     }
   };
 
-  handleMapPress = () => {
-    const { currentSite } = this.state;
-    if (currentSite) this.setState({ currentSite: null });
-  }
-
   getClusters = (params: ClusterParamsType) => (
+    // zoom accepts an integer
     this.cluster.getClusters(params.bound, Math.floor(params.zoom))
   );
 
-  handleDismiss = () => {
-    this.setState({ currentSite: null });
-  };
-
-  handleRegionDidChange = (geo: GeoJSON) => {
+  handleRegionDidChange = (geo: Feature<Point, GeoJsonProperties>) => {
     const properties = geo.properties as MapBoxOnChangeEvent;
     const visibleBounds = properties.visibleBounds;
     const zoomLevel = properties.zoomLevel;
@@ -169,30 +154,31 @@ export class _MapScreen extends React.Component<Props, State> {
       zoom: zoomLevel,
     };
 
-    const { sites } = this.props;
-    if (!this.cluster) this.initializeCluster();
-    this.cluster.load(sites.features);
+    const { sites: { features } } = this.props;
+    if (!this.cluster) this.cluster = supercluster.init();
+    this.cluster.load(features);
 
     const data = this.getClusters(params);
     this.setState({
       ...params,
       data,
     });
-  }
+  };
 
-  handleRegionPress = (geo: GeoJSON) => {
+  handleRegionPress = (geo: Feature<Point, GeoJsonProperties>) => {
     const { geometry: { coordinates }, properties } = geo;
     const clusterId = properties['cluster_id'];
+    // @ts-ignore - getClusterExpansionZoom doesn't accept second parameter per docs
     const expansionZoom = this.cluster.getClusterExpansionZoom(clusterId);
 
     this.map.setCamera({
       centerCoordinate: coordinates,
-      zoom: expansionZoom + 0.65, // add 0.65 to avoid clustering
+      zoom: expansionZoom + 0.7, // add 0.7 to avoid clustering
       duration: 100,
     });
-  }
+  };
 
-  handleSingleSitePress = (geo: GeoJSON) => {
+  handleSingleSitePress = (geo: Feature<Point, GeoJsonProperties>) => {
     const { geometry: { coordinates } } = geo;
     const properties = geo.properties as VoltaSite;
     const { id } = properties;
@@ -208,61 +194,63 @@ export class _MapScreen extends React.Component<Props, State> {
     });
   };
 
+  handleDismiss = () => {
+    this.setState({ currentSite: null });
+  };
+
+  renderAnnotation = (dataPoint: Cluster) => {
+    const { geometry, properties } = dataPoint;
+    const isCluster = !!properties['cluster_id'];
+    let id: string, available: number, total: number, 
+      onPress: (geo: Feature<Point, GeoJsonProperties>) => void;
+
+    if (isCluster) {
+      id = `REGION-${dataPoint.id}`;
+      available = properties.availableStations || 0;
+      total = properties.totalStations || 0;
+      onPress = this.handleRegionPress;
+    } else {
+      id = `SITE-${properties.id}`;
+      available = properties.chargers ? properties.chargers[0].available : 0;
+      total = properties.chargers ? properties.chargers[0].total : 0;
+      onPress = this.handleSingleSitePress;
+    }
+
+    const { coordinates } = geometry;
+    return (
+      <Annotation
+        availableStations={available}
+        totalStations={total}
+        coordinate={coordinates}
+        id={id}
+        isSite={!isCluster}
+        key={id}
+        onPress={onPress}
+        site={dataPoint}
+      />
+    );
+  };
+  
   render() {
     const { currentSite, data } = this.state;
 
     return (
       <View style={StyleSheet.absoluteFill}>
-        <MapboxGL.MapView
-          onPress={this.handleMapPress}
-          onRegionDidChange={this.handleRegionDidChange}
-          ref={(map: MapboxGL.MapView) => this.map = map}
-          showUserLocation
-          style={StyleSheet.absoluteFill}
-          zoomLevel={11}
-        >
-          {data.map((d) => {
-            const { geometry, properties } = d;
-            const { coordinates } = geometry;
-
-            const isRegion = !!properties['cluster_id'];
-
-            if (isRegion) {
-              const id = `REGION-${d.id}`;
-              const available = properties.availableStations || 0;
-              const total = properties.totalStations || 0;
-
-              return (
-                <Annotation
-                  availableStations={available}
-                  totalStations={total}
-                  coordinate={coordinates}
-                  id={id}
-                  key={id}
-                  onPress={this.handleRegionPress}
-                  site={d}
-                />
-              );
-            } else {
-              const id = `SITE-${d.properties.id}`;
-              const available = properties.chargers ? properties.chargers[0].available : 0;
-              const total = properties.chargers ? properties.chargers[0].total : 0;
-
-              return (
-                <Annotation
-                  availableStations={available}
-                  totalStations={total}
-                  coordinate={coordinates}
-                  id={id}
-                  isSite
-                  key={id}
-                  onPress={this.handleSingleSitePress}
-                  site={d}
-                />
-              );
-            }
-          })}
-        </MapboxGL.MapView>
+        {/*
+          onPress prop of MapView doesn't work so well when there's an overlay on top 
+          (it requires two touches to active the touch event).
+        */}
+        <TouchableWithoutFeedback onPress={this.handleDismiss} style={StyleSheet.absoluteFill}>
+          <MapboxGL.MapView
+            onRegionDidChange={this.handleRegionDidChange}
+            ref={(map: MapboxGL.MapView) => this.map = map}
+            showUserLocation
+            style={StyleSheet.absoluteFill}
+            zoomLevel={DEFAULT_ZOOM_LEVEL}
+          >
+            {data.map(this.renderAnnotation)}
+          </MapboxGL.MapView>
+        </TouchableWithoutFeedback>
 
         {currentSite && (
           <SiteInfoPane
@@ -289,6 +277,11 @@ const styles = StyleSheet.create({
     color: `${colors.primary}`,
     marginHorizontal: HORIZONTAL_SPACE,
   },
+  headerLogoContainer: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
   headerLogo: {
     height: 30,
   },
@@ -300,8 +293,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: 40,
     width: 40,
-    top: 8,
     left: 8,
+    top: 8,
   },
 });
 

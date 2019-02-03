@@ -1,9 +1,10 @@
-export type Bound = {
-  lng0: number;
-  lat0: number;
-  lng1: number;
-  lat1: number;
-};
+import {
+  Feature,
+  GeoJsonProperties,
+  Point,
+} from 'geojson';
+
+export type Bound = [number, number, number, number];
 
 export type Coordinates = {
   accuracy: number;
@@ -14,18 +15,9 @@ export type Coordinates = {
   speed: number;
 };
 
-export type GeoJSON = {
-  type: string;
-  geometry: {
-    type: string;
-    coordinates: [number, number]
-  },
-  properties: VoltaSite | MapBoxOnChangeEvent | object;
-}
-
 export type GeoJSONCollection = {
   type: string;
-  features: GeoJSON[];
+  features: Feature<Point, GeoJsonProperties>[];
 };
 
 export type VoltaLocation = {
@@ -36,13 +28,13 @@ export type VoltaLocation = {
 export type VoltaStation = {
     id: string;
     name: string;
-    site_id: string;
-    status: string;
     geolocation: string;
-    has_media_issue: boolean;
-    meter_status: string[];
-    media_player_status: string[];
-    display_status: string[];
+};
+
+export type VoltaChargers = {
+  available: number,
+  total: number,
+  level: string,
 };
 
 export type VoltaSite = {
@@ -50,11 +42,7 @@ export type VoltaSite = {
   name: string;
   location: VoltaLocation;
   stations: VoltaStation[];
-  chargers: {
-    available: number,
-    total: number,
-    level: string,
-  }[];
+  chargers: VoltaChargers[];
 };
 
 export type MapBoxOnChangeEvent = {
