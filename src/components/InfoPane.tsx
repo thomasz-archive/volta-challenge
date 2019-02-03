@@ -18,16 +18,12 @@ const SUMMARY_HEIGHT = 136;
 type Props = {
   site: VoltaSite,
 };
-// TODO: Remember to add `static defaultProps = DEFAULT_PROPS;` to the component
-const DEFAULT_PROPS = {
-  
-};
 
 type State = {
   isFullView: boolean;
 };
 
-export class InfoPane extends React.Component<Props & typeof DEFAULT_PROPS, State> {
+export class InfoPane extends React.Component<Props, State> {
   state = {
     isFullView: false,
   };

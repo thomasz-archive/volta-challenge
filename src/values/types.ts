@@ -14,18 +14,18 @@ export type Coordinates = {
   speed: number;
 };
 
-export type GeoJSONLocation = {
+export type GeoJSON = {
   type: string;
   geometry: {
     type: string;
     coordinates: [number, number]
   },
-  properties: object;
+  properties: VoltaSite | MapBoxOnChangeEvent | object;
 }
 
-export type GeoJSonObject = {
+export type GeoJSONCollection = {
   type: string;
-  features: GeoJSONLocation[];
+  features: GeoJSON[];
 };
 
 export type VoltaLocation = {
@@ -50,4 +50,14 @@ export type VoltaSite = {
   name: string;
   location: VoltaLocation;
   stations: VoltaStation[];
+  chargers: {
+    available: number,
+    total: number,
+    level: string,
+  }[];
+};
+
+export type MapBoxOnChangeEvent = {
+  visibleBounds: [number, number, number, number];
+  zoomLevel: number;
 };

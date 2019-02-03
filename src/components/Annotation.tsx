@@ -7,28 +7,33 @@ import {
 } from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 
-import { VoltaSite } from '../values/types';
+import { VoltaSite, GeoJSON } from '../values/types';
 import { colors } from '../values/colors';
 
 const SIZE = 48;
 
 type Props = {
+  availableStations: number;
+  totalStations: number;
   coordinate: [number, number];
-  onPress: (site: VoltaSite) => void;
-  site: VoltaSite,
+  id: string;
+  onPress: (geo: GeoJSON) => Promise<void> | void;
+  site: GeoJSON,
 };
 
-export const Annotation: React.FunctionComponent<Props> = ({ coordinate, onPress, site }) => (    
+export const Annotation: React.FunctionComponent<Props> = ({
+  availableStations, totalStations, coordinate, id, onPress, site,
+}) => (
   <TouchableWithoutFeedback onPress={() => onPress(site)}>
     <MapboxGL.PointAnnotation
-      key={site.id}
-      id={site.id}
+      key={id}
+      id={id}
       coordinate={coordinate}
     >
       <View style={styles.annotationContainer}>
         <View style={styles.annotationFill}>
           <Text style={styles.counterText}>
-            {site.stations.filter(station => station['meter_status'][0] === 'idle').length}
+            {availableStations}
           </Text>
         </View>
       </View>

@@ -3,12 +3,12 @@ import { AnyAction } from 'redux';
 import axios from 'axios';
 
 import { VOLTA_LOAD_ALL_SITES } from './types';
-import { GeoJSonObject } from '../values/types';
+import { GeoJSONCollection } from '../values/types';
 import { sitesToGeoJSON } from '../utils/volta_utils';
 
 export type VoltaActionType = {
   type: string;
-  sites: GeoJSonObject,
+  sites: GeoJSONCollection,
 };
 
 export const loadAllSites = () => (

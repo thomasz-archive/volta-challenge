@@ -2,9 +2,9 @@ import {
   VOLTA_LOAD_ALL_SITES,
 } from '../actions/types';
 import { VoltaActionType } from '../actions/volta_actions';
-import { GeoJSonObject } from '../values/types';
+import { GeoJSONCollection } from '../values/types';
 
-export type VoltaSitesReduxState = GeoJSonObject;
+export type VoltaSitesReduxState = GeoJSONCollection;
 
 const INITIAL_STATE: VoltaSitesReduxState = {
   type: 'FeatureCollection',
