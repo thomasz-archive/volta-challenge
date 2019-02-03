@@ -1,6 +1,8 @@
 import React from 'react';
 import {
+  Dimensions,
   Image,
+  PixelRatio,
   Platform,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -10,6 +12,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   NavigationScreenConfig,
   NavigationScreenOptions,
+  NavigationScreenProp,
+  NavigationState,
 } from 'react-navigation';
 import { connect } from 'react-redux';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
@@ -33,10 +37,12 @@ import { ReduxState } from '../reducers';
 import { SiteInfoPane } from '../components/SiteInfoPane';
 import { Annotation } from '../components/Annotation';
 import { supercluster } from '../utils/supercluster';
+import { SearchScreen } from './SearchScreen';
 
 MapboxGL.setAccessToken(MAP_BOX_API);
 
 const DEFAULT_ZOOM_LEVEL = 11;
+const SEARCH_HEIGHT_SCREEN_RATIO = 0.6;
 
 type ClusterParamsType = {
   bound: Bound,
@@ -44,6 +50,7 @@ type ClusterParamsType = {
 }
 
 type Props = {
+  navigation: NavigationScreenProp<NavigationState>
   sites: GeoJSONCollection,
 };
 
@@ -51,43 +58,65 @@ type State = {
   bound?: Bound; // [westLng, southLat, eastLng, northLat]
   currentSite?: VoltaSite,
   data: Cluster[],
+  isSearching: boolean;
   zoom?: number,
 };
 
 export class _MapScreen extends React.Component<Props, State> {
-  static navigationOptions: NavigationScreenConfig<NavigationScreenOptions> = ({ navigation }) => ({
-    headerLeft: (
-      <MaterialCommunityIcons
-        name="menu"
-        size={24}
-        style={styles.headerIcon}
-        onPress={() => navigation.toggleDrawer()}
-      />
-    ),
-    headerTitle:(
-      <View style={styles.headerLogoContainer}> 
-        <Image
-          style={styles.headerLogo}
-          resizeMode="contain"
-          source={require('../../assets/volta_logo.png')}
-        />
-      </View>
-    ),
-    headerRight: (<View />),
-  });
+  static navigationOptions: NavigationScreenConfig<NavigationScreenOptions> = ({ navigation }) => {
+    const params = navigation.state.params || {};
+    const toggleSearch = params.toggleSearch || (() => {});
 
-  state = {
-    bound: null,
-    currentSite: null,
-    data: [],
-    zoom: 11,
+    return {
+      headerLeft: (
+        <MaterialCommunityIcons
+          name="menu"
+          size={24}
+          style={styles.headerIcon}
+          onPress={() => navigation.toggleDrawer()}
+        />
+        ),
+        headerTitle:(
+          <View style={styles.headerLogoContainer}> 
+          <Image
+            style={styles.headerLogo}
+            resizeMode="contain"
+            source={require('../../assets/volta_logo.png')}
+          />
+        </View>
+      ),
+      headerRight: (
+        <MaterialCommunityIcons
+          name="map-search-outline"
+          size={24}
+          style={styles.headerIcon}
+          onPress={toggleSearch}
+        />
+      ),
+    }
   };
 
   cluster: Supercluster;
   map: MapboxGL.MapView;
   _isInitialLoad = true;
 
-  async componentDidMount() {
+  constructor(props: Props) {
+    super(props);
+  
+    this.state = {
+      bound: null,
+      currentSite: null,
+      data: [],
+      isSearching: false,
+      zoom: 11,
+    };
+
+    props.navigation.setParams({
+      toggleSearch: this.toggleSearch,
+    })
+  }
+
+  componentDidMount() {
     this.moveToUserLocation();
   }
 
@@ -96,6 +125,12 @@ export class _MapScreen extends React.Component<Props, State> {
       this.clusterize(nextProps.sites.features);
     }
   }
+
+  toggleSearch = () => {
+    this.setState(({ isSearching }) => ({
+      isSearching: !isSearching
+    }));
+  };
 
   moveToUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
@@ -140,7 +175,7 @@ export class _MapScreen extends React.Component<Props, State> {
   };
 
   getClusters = (params: ClusterParamsType) => (
-    // zoom accepts an integer
+    // zoom must be an integer
     this.cluster.getClusters(params.bound, Math.floor(params.zoom))
   );
 
@@ -198,6 +233,16 @@ export class _MapScreen extends React.Component<Props, State> {
     this.setState({ currentSite: null });
   };
 
+  handleSelectSearchedSite = (geo: Feature<Point, VoltaSite>) => {
+    const { geometry: { coordinates }, properties } = geo;
+    this.map.moveTo(coordinates, 350);
+    
+    this.setState({
+      currentSite: properties,
+      isSearching: false,
+    });
+  };
+
   renderAnnotation = (dataPoint: Cluster) => {
     const { geometry, properties } = dataPoint;
     const isCluster = !!properties['cluster_id'];
@@ -232,7 +277,18 @@ export class _MapScreen extends React.Component<Props, State> {
   };
   
   render() {
-    const { currentSite, data } = this.state;
+    const { sites: { features } } = this.props;
+    const { currentSite, data, isSearching } = this.state;
+
+    /* TODO:
+      (1) Add this to a render method (NOT top of the file) because dimensions can change upon rotation, entering/exiting multitasking mode, etc
+      (2) Use  to calculate size, for visual consistencies
+    */
+    const { height } = Dimensions.get('window');
+    const searchHeight = PixelRatio.roundToNearestPixel(height * SEARCH_HEIGHT_SCREEN_RATIO);
+    const searchHeightStyle = {
+      height: searchHeight,
+    };
 
     return (
       <View style={StyleSheet.absoluteFill}>
@@ -267,6 +323,15 @@ export class _MapScreen extends React.Component<Props, State> {
             />
           </View>
         </TouchableWithoutFeedback>
+
+        {isSearching && (
+          <SearchScreen
+            data={features}
+            onSelect={this.handleSelectSearchedSite}
+            placeholder="Site name"
+            style={[styles.searchPane, searchHeightStyle]}
+          />
+        )}
       </View>
     );
   }
@@ -295,6 +360,14 @@ const styles = StyleSheet.create({
     width: 40,
     left: 8,
     top: 8,
+  },
+  searchPane: {
+    borderRadius: 20,
+    padding: 20,
+    position: 'absolute',
+    left: 8,
+    top: 8,
+    right: 8,
   },
 });
 

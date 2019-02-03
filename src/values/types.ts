@@ -17,7 +17,7 @@ export type Coordinates = {
 
 export type GeoJSONCollection = {
   type: string;
-  features: Feature<Point, GeoJsonProperties>[];
+  features: Feature<Point, VoltaSite>[];
 };
 
 export type VoltaLocation = {
@@ -26,9 +26,9 @@ export type VoltaLocation = {
 };
 
 export type VoltaStation = {
-    id: string;
-    name: string;
-    geolocation: string;
+  id: string;
+  name: string;
+  geolocation: string;
 };
 
 export type VoltaChargers = {
