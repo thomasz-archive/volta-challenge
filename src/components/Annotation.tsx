@@ -6,9 +6,11 @@ import {
   View,
 } from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
+import ProgressCircle from 'react-native-progress-circle'
 
-import { VoltaSite, GeoJSON } from '../values/types';
+import { GeoJSON } from '../values/types';
 import { colors } from '../values/colors';
+import { AntDesign } from '@expo/vector-icons';
 
 const SIZE = 48;
 
@@ -17,12 +19,13 @@ type Props = {
   totalStations: number;
   coordinate: [number, number];
   id: string;
-  onPress: (geo: GeoJSON) => Promise<void> | void;
+  isSite?: boolean;
+  onPress: (geo: GeoJSON) => void;
   site: GeoJSON,
 };
 
 export const Annotation: React.FunctionComponent<Props> = ({
-  availableStations, totalStations, coordinate, id, onPress, site,
+  availableStations, totalStations, coordinate, id, isSite, onPress, site,
 }) => (
   <TouchableWithoutFeedback onPress={() => onPress(site)}>
     <MapboxGL.PointAnnotation
@@ -31,11 +34,25 @@ export const Annotation: React.FunctionComponent<Props> = ({
       coordinate={coordinate}
     >
       <View style={styles.annotationContainer}>
-        <View style={styles.annotationFill}>
+        <ProgressCircle
+          bgColor={`${colors.black.alpha(0.8)}`}
+          borderWidth={5}
+          color={`${colors.secondary}`}
+          percent={availableStations / totalStations * 100}
+          radius={SIZE * 0.4}
+        >
           <Text style={styles.counterText}>
-            {availableStations}
+            {`${availableStations}`}
           </Text>
-        </View>
+        </ProgressCircle>
+
+        {isSite && (
+          <AntDesign
+            name="caretdown"
+            size={24}
+            style={styles.icon}
+          />
+        )}
       </View>
     </MapboxGL.PointAnnotation>
   </TouchableWithoutFeedback>
@@ -50,19 +67,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: SIZE,
   },
-  annotationFill: {
-    alignItems: 'center',
-    borderColor: `${colors.secondary}`,
-    borderRadius: SIZE / 2,
-    borderWidth: SIZE * 0.15,
-    height: SIZE,
-    justifyContent: 'center',
-    transform: [{ scale: 0.8 }],
-    width: SIZE,
-  },
   counterText: {
     color: `${colors.white}`,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '500',
+  },
+  icon: {
+    color: `${colors.black.alpha(0.8)}`,
+    position: 'absolute',
+    top: SIZE - 4,
   },
 });

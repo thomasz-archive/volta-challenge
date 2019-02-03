@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  Image,
+  Platform,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
@@ -23,7 +25,7 @@ import {
   VoltaSite,
 } from '../values/types';
 import { ReduxState } from '../reducers';
-import { InfoPane } from '../components/InfoPane';
+import { SiteInfoPane } from '../components/SiteInfoPane';
 import { Annotation } from '../components/Annotation';
 
 MapboxGL.setAccessToken(MAP_BOX_API);
@@ -41,7 +43,6 @@ type State = {
   bound?: [number, number, number, number];
   currentSite?: VoltaSite,
   data: GeoJSON[],
-  userLocation?: [number, number];
   zoom?: number,
 };
 
@@ -55,19 +56,25 @@ export class _MapScreen extends React.Component<Props, State> {
         onPress={() => navigation.toggleDrawer()}
       />
     ),
-    title: 'Volta',
+    headerTitle:(
+      <Image
+        style={styles.headerLogo}
+        resizeMode="contain"
+        source={require('../../assets/volta_logo.png')}
+      />
+    ),
   });
 
   state = {
     bound: null,
     currentSite: null,
     data: [],
-    userLocation: null,
     zoom: 11,
   };
 
   cluster: SuperCluster;
   map: MapboxGL.MapView;
+  _isInitialLoad = true;
 
   async componentDidMount() {
     this.moveToUserLocation();
@@ -82,11 +89,22 @@ export class _MapScreen extends React.Component<Props, State> {
   moveToUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
-        this.map.moveTo([longitude, latitude], 350);
+        if (this._isInitialLoad && Platform.OS === 'android') {
+          // TODO: Android (at least the emulator) seems to have issue 
+          // zooming into user's location when the app first launches. 
+          // Find a better solution later.
+          this.map.setCamera({
+            centerCoordinate: [longitude, latitude],
+            zoom: 11,
+            duration: 0,
+          });
+          this._isInitialLoad = false;
+        } else {
+          this.map.moveTo([longitude, latitude], 350);
+        }
 
         this.setState({
           currentSite: null,
-          userLocation: [longitude, latitude]
         }, () => {
           const { sites } = this.props;
           this.clusterize(sites.features);
@@ -98,7 +116,7 @@ export class _MapScreen extends React.Component<Props, State> {
     );
   };
 
-  clusterize = (data: GeoJSON[]) => {
+  initializeCluster = () => {
     this.cluster = new SuperCluster({
       maxZoom: 14,
       initial: () => ({
@@ -114,7 +132,10 @@ export class _MapScreen extends React.Component<Props, State> {
         accumulated.totalStations += properties.totalStations;
       },
     });
+  }
 
+  clusterize = (data: GeoJSON[]) => {
+    if (!this.cluster) this.initializeCluster();
     this.cluster.load(data);
 
     const { bound, zoom } = this.state;
@@ -149,6 +170,7 @@ export class _MapScreen extends React.Component<Props, State> {
     };
 
     const { sites } = this.props;
+    if (!this.cluster) this.initializeCluster();
     this.cluster.load(sites.features);
 
     const data = this.getClusters(params);
@@ -158,15 +180,16 @@ export class _MapScreen extends React.Component<Props, State> {
     });
   }
 
-  handleRegionPress = async (geo: GeoJSON) => {
-    const { geometry: { coordinates } } = geo;
-    const currentZoom = await this.map.getZoom();
+  handleRegionPress = (geo: GeoJSON) => {
+    const { geometry: { coordinates }, properties } = geo;
+    const clusterId = properties['cluster_id'];
+    const expansionZoom = this.cluster.getClusterExpansionZoom(clusterId);
 
     this.map.setCamera({
       centerCoordinate: coordinates,
-      zoom: currentZoom + 1.6,
+      zoom: expansionZoom + 0.65, // add 0.65 to avoid clustering
       duration: 100,
-    })
+    });
   }
 
   handleSingleSitePress = (geo: GeoJSON) => {
@@ -192,9 +215,9 @@ export class _MapScreen extends React.Component<Props, State> {
       <View style={StyleSheet.absoluteFill}>
         <MapboxGL.MapView
           onPress={this.handleMapPress}
+          onRegionDidChange={this.handleRegionDidChange}
           ref={(map: MapboxGL.MapView) => this.map = map}
           showUserLocation
-          onRegionDidChange={this.handleRegionDidChange}
           style={StyleSheet.absoluteFill}
           zoomLevel={11}
         >
@@ -231,6 +254,7 @@ export class _MapScreen extends React.Component<Props, State> {
                   totalStations={total}
                   coordinate={coordinates}
                   id={id}
+                  isSite
                   key={id}
                   onPress={this.handleSingleSitePress}
                   site={d}
@@ -241,7 +265,10 @@ export class _MapScreen extends React.Component<Props, State> {
         </MapboxGL.MapView>
 
         {currentSite && (
-          <InfoPane site={currentSite} />
+          <SiteInfoPane
+            onDismiss={this.handleDismiss}
+            site={currentSite}
+          />
         )}
 
         <TouchableWithoutFeedback onPress={this.moveToUserLocation}>
@@ -261,6 +288,9 @@ const styles = StyleSheet.create({
   headerIcon: {
     color: `${colors.primary}`,
     marginHorizontal: HORIZONTAL_SPACE,
+  },
+  headerLogo: {
+    height: 30,
   },
   reCenterIconContainer: {
     alignItems: 'center',
