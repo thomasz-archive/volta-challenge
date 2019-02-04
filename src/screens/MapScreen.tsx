@@ -32,6 +32,7 @@ import {
   GeoJSONCollection,
   MapBoxOnChangeEvent,
   VoltaSite,
+  CitiesResponse,
 } from '../values/types';
 import { ReduxState } from '../reducers';
 import { SiteInfoPane } from '../components/SiteInfoPane';
@@ -234,19 +235,36 @@ export class _MapScreen extends React.Component<Props, State> {
     this.setState({ currentSite: null });
   };
 
-  handleSelectSearchedSite = (geo: Feature<Point, VoltaSite>) => {
-    const { geometry: { coordinates }, properties } = geo;
+  handleSelectSearchedSite = (data: Feature<Point, VoltaSite> | CitiesResponse) => {
+    // @ts-ignore
+    const isSiteData = !!data.properties;
 
-    this.map.setCamera({
-      centerCoordinate: coordinates,
-      zoom: MAX_ZOOM_LEVEL,
-      duration: 350,
-    });
+    if (isSiteData) {
+      const { geometry: { coordinates }, properties } = data as Feature<Point, VoltaSite>;
 
-    this.setState({
-      currentSite: properties,
-      isSearching: false,
-    });
+      this.map.setCamera({
+        centerCoordinate: coordinates,
+        zoom: MAX_ZOOM_LEVEL,
+        duration: 350,
+      });
+
+      this.setState({
+        currentSite: properties,
+        isSearching: false,
+      });
+    } else {
+      const { longitude, latitude } = data as CitiesResponse;
+
+      this.map.setCamera({
+        centerCoordinate: [Number(longitude), Number(latitude)],
+        zoom: DEFAULT_ZOOM_LEVEL,
+        duration: 350,
+      });
+
+      this.setState({
+        isSearching: false,
+      });
+    }
   };
 
   renderAnnotation = (dataPoint: Cluster) => {
@@ -334,7 +352,7 @@ export class _MapScreen extends React.Component<Props, State> {
           <SearchScreen
             data={features}
             onSelect={this.handleSelectSearchedSite}
-            placeholder="Site name"
+            placeholder="Site name or zip code"
             style={[styles.searchPane, searchHeightStyle]}
           />
         )}

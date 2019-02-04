@@ -38,7 +38,7 @@ export const SiteSummary: React.FunctionComponent<Props> = (props) => {
         </View>
 
         <Text style={styles.chargers}>
-          {`${available} of ${total} chargers available - ${level}`}
+          {`${available} of ${total} charger${total >= 2 ? 's' : ''} available - ${level}`}
         </Text>
       </View>
     </TouchableWithoutFeedback>

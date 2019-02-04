@@ -6,12 +6,11 @@ import {
   ListRenderItemInfo,
   StyleProp,
   StyleSheet,
-  Text,
-  TouchableHighlight,
   ViewStyle,
 } from 'react-native';
+import cities from 'cities';
 
-import { VoltaSite } from '../values/types';
+import { VoltaSite, CitiesResponse } from '../values/types';
 import { colors } from '../values/colors';
 import { Divider } from '../components/Divider';
 import { SearchInput } from '../components/SearchInput';
@@ -19,25 +18,25 @@ import {
   Feature,
   Point,
 } from 'geojson';
+import { SearchResultItem } from '../components/SearchResultItem';
+
+const keyExtractor = (data: Feature<Point, VoltaSite> | CitiesResponse) => (
+  (data as CitiesResponse).zipcode || (data as Feature<Point, VoltaSite>).properties.id
+);
 
 type Props = {
   data: Feature<Point, VoltaSite>[],
-  onSelect: (site: Feature<Point, VoltaSite>) => void;
+  onSelect: (data: Feature<Point, VoltaSite> | CitiesResponse) => void;
   placeholder: string;
   style: StyleProp<ViewStyle>,
 };
-const DEFAULT_PROPS = {
-  style: {},
-};
 
 type State = {
-  result: Feature<Point, VoltaSite>[];
+  result: (Feature<Point, VoltaSite> | string)[];
   searchValue: string;
 };
 
-export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, State> {
-  static defaultProps = DEFAULT_PROPS;
-
+export class SearchScreen extends React.Component<Props, State> {
   opacity = new Animated.Value(0);
   state = {
     result: [],
@@ -54,11 +53,18 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
 
   handleChangeText = (searchValue: string) => {
     const { data } = this.props;
-    const result = searchValue ? (
-      data.filter(d => d.properties.name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)
+    const input = searchValue.toLowerCase();
+    const sitesResult = searchValue ? (
+      data.filter(d => d.properties.name.toLowerCase().indexOf(input) !== -1)
     ) : [];
+
+    const zipCode = Number(searchValue);
+    const isZipCode = !Number.isNaN(Number(searchValue)) && zipCode >= 10000 && zipCode <= 99999;
+    const cityResponse = isZipCode ? cities.zip_lookup(zipCode) : undefined;
+    const cityResult = isZipCode && cityResponse ? [cityResponse] : [];
+
     this.setState({
-      result,
+      result: [...sitesResult, ...cityResult],
       searchValue,
     });
   };
@@ -67,30 +73,46 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
     Keyboard.dismiss();
   }
 
-  handleSearchItemPress = (site: Feature<Point, VoltaSite>) => {
+  handleSearchItemPress = (data: Feature<Point, VoltaSite> | CitiesResponse) => {
     const { onSelect } = this.props;
-    onSelect(site);
+    onSelect(data);
   }
 
-  renderSearchItem = (info: ListRenderItemInfo<Feature<Point, VoltaSite>>) => {
+  renderSearchItem = (info: ListRenderItemInfo<Feature<Point, VoltaSite> | CitiesResponse>) => {
     const { item } = info;
-    const { properties: { name } } = item;
+    // @ts-ignore
+    const isSiteData = !!item.properties;
 
-    return (
-      <TouchableHighlight
-        onPress={() => this.handleSearchItemPress(item)}
-        style={styles.searchItem}
-        underlayColor={`${colors.black.alpha(0.05)}`}
-      >
-        <Text
-          ellipsizeMode="tail"
-          numberOfLines={1}
-          style={styles.searchItemText}
-        >
-          {name}
-        </Text>
-      </TouchableHighlight>
-    );
+    if (isSiteData) {
+      const site = item as Feature<Point, VoltaSite>;
+      const { properties: { chargers, name } } = site;
+      const { available, total } = chargers[0];
+
+      const descriptionStyle = {
+        color: `${!available? colors.hint.lighten(0.15) : colors.secondary.darken(0.4)}`,
+      }
+
+      return (
+        <SearchResultItem
+          onPress={() => this.handleSearchItemPress(site)}
+          row1Text={name}
+          row2Style={descriptionStyle}
+          row2Text={`${available} of ${total} charger${total >= 2 ? 's' : ''} available`}
+        />
+      );
+    } else {
+      const location = item as CitiesResponse;
+      const { zipcode, state_abbr, city } = location;
+
+      return (
+        <SearchResultItem
+          onPress={() => this.handleSearchItemPress(location)}
+          row1Text={zipcode}
+          row2Style={styles.cityState}
+          row2Text={`${city}, ${state_abbr}`}
+        />
+      );
+    }
   };
 
   render() {
@@ -102,7 +124,7 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
     };
 
     return (
-      <Animated.View style={[styles.container, style, opacityStyle]}>
+      <Animated.View style={[styles.container, style || {}, opacityStyle]}>
         <SearchInput
           onChangeText={this.handleChangeText}
           onSubmitEditing={this.handleSubmit}
@@ -114,7 +136,7 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
           <FlatList
             data={result}
             ItemSeparatorComponent={Divider}
-            keyExtractor={({ properties }) => properties.id }
+            keyExtractor={keyExtractor}
             renderItem={this.renderSearchItem}
             style={styles.list}
           />
@@ -132,12 +154,7 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 8,
   },
-  searchItem: {
-    backgroundColor: `${colors.white}`,
-    height: 48,
-    justifyContent: 'center',
-  },
-  searchItemText: {
-    fontSize: 16,
+  cityState: {
+    color: `${colors.hint.lighten(0.15)}`,
   },
 });

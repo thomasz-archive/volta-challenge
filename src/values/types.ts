@@ -15,6 +15,15 @@ export type Coordinates = {
   speed: number;
 };
 
+export type CitiesResponse = {
+  zipcode: string;
+  state_abbr: string;
+  latitude: string;
+  longitude: string;
+  city: string;
+  state: string;
+};
+
 export type GeoJSONCollection = {
   type: string;
   features: Feature<Point, VoltaSite>[];

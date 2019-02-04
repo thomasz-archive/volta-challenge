@@ -1758,6 +1758,13 @@ ci-info@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
 
+cities@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/cities/-/cities-2.0.0.tgz#c22e35fff439f97dae2858eb67d7497b2f00e89b"
+  dependencies:
+    haversine "^1.0.0"
+    lodash "^4.17.11"
+
 clang-format@1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/clang-format/-/clang-format-1.2.3.tgz#2763561aa7449c43737480f8df3a2b5b66e6cf37"
@@ -3297,6 +3304,10 @@ has@^1.0.1, has@^1.0.3:
   resolved "https://registry.yarnpkg.com/has/-/has-1.0.3.tgz#722d7cbfc1f6aa8241f16dd814e011e1f41e8796"
   dependencies:
     function-bind "^1.1.1"
+
+haversine@^1.0.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/haversine/-/haversine-1.1.1.tgz#05b65e0445aca8f217b0db56877e4d637d3fc8ae"
 
 hoist-non-react-statics@^2.3.1, hoist-non-react-statics@^2.5.0:
   version "2.5.5"
