@@ -47,7 +47,6 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
   componentDidMount() {
     const { sites: { features } } = this.props;
     const siteMetrics = generateSummary(features).sectionListData;
-    console.log(siteMetrics);
 
     this.setState({
       siteMetrics,

@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Alert,
   Dimensions,
   Image,
   PixelRatio,
@@ -159,7 +160,7 @@ export class _MapScreen extends React.Component<Props, State> {
         });
       },
       (error) => {
-        console.log('error', error);
+        Alert.alert('error', `${error}`);
       }
     );
   };
