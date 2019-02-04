@@ -213,6 +213,8 @@ export class _MapScreen extends React.Component<Props, State> {
       zoom: expansionZoom + 0.7, // add 0.7 to avoid clustering
       duration: 100,
     });
+
+    this.setState({ currentSite: null });
   };
 
   handleSingleSitePress = (geo: Feature<Point, GeoJsonProperties>) => {
@@ -235,7 +237,7 @@ export class _MapScreen extends React.Component<Props, State> {
     this.setState({ currentSite: null });
   };
 
-  handleSelectSearchedSite = (data: Feature<Point, VoltaSite> | CitiesResponse) => {
+  handleSelectSearchedItem = (data: Feature<Point, VoltaSite> | CitiesResponse) => {
     // @ts-ignore
     const isSiteData = !!data.properties;
 
@@ -262,6 +264,7 @@ export class _MapScreen extends React.Component<Props, State> {
       });
 
       this.setState({
+        currentSite: null,
         isSearching: false,
       });
     }
@@ -351,7 +354,8 @@ export class _MapScreen extends React.Component<Props, State> {
         {isSearching && (
           <SearchScreen
             data={features}
-            onSelect={this.handleSelectSearchedSite}
+            onDismiss={this.toggleSearch}
+            onSelect={this.handleSelectSearchedItem}
             placeholder="Site name or zip code"
             style={[styles.searchPane, searchHeightStyle]}
           />

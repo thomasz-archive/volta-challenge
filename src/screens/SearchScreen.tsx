@@ -26,6 +26,7 @@ const keyExtractor = (data: Feature<Point, VoltaSite> | CitiesResponse) => (
 
 type Props = {
   data: Feature<Point, VoltaSite>[],
+  onDismiss: () => void;
   onSelect: (data: Feature<Point, VoltaSite> | CitiesResponse) => void;
   placeholder: string;
   style: StyleProp<ViewStyle>,
@@ -70,7 +71,14 @@ export class SearchScreen extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    Keyboard.dismiss();
+    const { onDismiss } = this.props;
+    const { searchValue } = this.state;
+    
+    if (searchValue) {
+      Keyboard.dismiss();
+    } else {
+      onDismiss();
+    }
   }
 
   handleSearchItemPress = (data: Feature<Point, VoltaSite> | CitiesResponse) => {

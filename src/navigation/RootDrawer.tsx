@@ -3,8 +3,7 @@ import { createDrawerNavigator } from 'react-navigation';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { MapModal } from './MapModal';
-import { SettingsScreen } from '../screens/SettingsScreen';
-import { FAQScreen } from '../screens/FAQScreen';
+import { SiteMetricsScreen } from '../screens/SiteMetricsScreen';
 
 const getDrawerItemIcon = (icon: string) => ({ tintColor }: { tintColor: string }) => (
   <MaterialCommunityIcons
@@ -21,18 +20,11 @@ export const RootDrawer = createDrawerNavigator({
       drawerLabel: () => null,
     },
   },
-  Settings: {
-    screen: SettingsScreen,
+  SiteMetrics: {
+    screen: SiteMetricsScreen,
     navigationOptions: {
-      drawerIcon: getDrawerItemIcon('settings'),
-      drawerLabel: 'Settings',
-    },
-  },
-  FAQ: {
-    screen: FAQScreen,
-    navigationOptions: {
-      drawerIcon: getDrawerItemIcon('comment-question-outline'),
-      drawerLabel: 'FAQ',
+      drawerIcon: getDrawerItemIcon('google-analytics'),
+      drawerLabel: 'Site Metrics',
     },
   },
 }, {

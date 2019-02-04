@@ -1,6 +1,5 @@
 import {
   Feature,
-  GeoJsonProperties,
   Point,
 } from 'geojson';
 
@@ -29,6 +28,15 @@ export type GeoJSONCollection = {
   features: Feature<Point, VoltaSite>[];
 };
 
+export type SiteMetrics = {
+  chargers: {
+    available: number,
+    total: number,
+  };
+  stations: object,
+  chargerStatus: object,
+};
+
 export type VoltaLocation = {
   type: string;
   coordinates: [number, number];
@@ -38,6 +46,8 @@ export type VoltaStation = {
   id: string;
   name: string;
   geolocation: string;
+  status: string;
+  meter_status: string[];
 };
 
 export type VoltaChargers = {
