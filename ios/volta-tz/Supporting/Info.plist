@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>LSApplicationCategoryType</key>
-	<string></string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -53,6 +51,8 @@
 			</dict>
 		</array>
 	</dict>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -71,7 +71,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow Volta TZ to access your microphone</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow Volta TZ to access your device&apos;s accelerometer</string>
+	<string>Allow Volta TZ to access your device's accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give Volta TZ permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>

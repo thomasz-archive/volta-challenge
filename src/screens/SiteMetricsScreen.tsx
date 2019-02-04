@@ -128,6 +128,7 @@ const statusBarHeight = (Platform.OS === 'ios' && Number(Platform.Version) >= 11
 
 const styles = StyleSheet.create({
   safeAreaView: {
+    backgroundColor: `${colors.white}`,
     flex: 1,
     marginTop: statusBarHeight + VERTICAL_SPACE,
     marginHorizontal: HORIZONTAL_SPACE,
