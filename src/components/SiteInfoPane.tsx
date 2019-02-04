@@ -14,8 +14,9 @@ import { SiteSummary } from './SiteSummary';
 import { HORIZONTAL_SPACE } from '../values/constants';
 
 const SUMMARY_HEIGHT = 184;
-const UP_GESTURE_QUALIFICATION_RATIO = 0.25;
-const DOWN_GESTURE_QUALIFICATION_RATIO = 0.35;
+const SWIPE_DOWN_TO_MINI_VIEW_RATIO = 0.2;
+const SWIPE_UP_TO_FULL_VIEW_RATIO = 0.2;
+const SWIPE_TO_DISMISS_RATIO = 0.35;
 
 type Props = {
   onDismiss: () => void;
@@ -67,14 +68,19 @@ export class SiteInfoPane extends React.Component<Props, State> {
     const { height } = Dimensions.get('window');
     const maxOffset = SUMMARY_HEIGHT - height * 0.8;
 
-    if (!isFullView && top < maxOffset * UP_GESTURE_QUALIFICATION_RATIO) {
+    if (isFullView && top < -maxOffset * SWIPE_DOWN_TO_MINI_VIEW_RATIO) {
+      Animated.spring(this.translateY, {
+        toValue: SUMMARY_HEIGHT - height * 0.8,
+        useNativeDriver: true,
+      }).start();
+    } else if (!isFullView && top < maxOffset * SWIPE_UP_TO_FULL_VIEW_RATIO) {
       Animated.spring(this.translateY, {
         toValue: SUMMARY_HEIGHT - height * 0.8,
         useNativeDriver: true,
       }).start(() => {
         this.setState({ isFullView: true });
       });
-    } else if (!isFullView && top > SUMMARY_HEIGHT * DOWN_GESTURE_QUALIFICATION_RATIO) {
+    } else if (!isFullView && top > SUMMARY_HEIGHT * SWIPE_TO_DISMISS_RATIO) {
       const { onDismiss } = this.props;
       onDismiss();
     } else {
