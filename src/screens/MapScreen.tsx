@@ -307,10 +307,6 @@ export class _MapScreen extends React.Component<Props, State> {
     const { sites: { features } } = this.props;
     const { currentSite, data, isSearching } = this.state;
 
-    /* TODO:
-      (1) Add this to a render method (NOT top of the file) because dimensions can change upon rotation, entering/exiting multitasking mode, etc
-      (2) Use  to calculate size, for visual consistencies
-    */
     const { height } = Dimensions.get('window');
     const searchHeight = PixelRatio.roundToNearestPixel(height * SEARCH_HEIGHT_SCREEN_RATIO);
     const searchHeightStyle = {

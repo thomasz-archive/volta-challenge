@@ -4,12 +4,14 @@ import {
   Dimensions,
   ScrollView,
   StyleSheet,
+  Text,
 } from 'react-native';
 
 import { colors } from '../values/colors';
 import { VoltaSite } from '../values/types';
 import { Draggable } from './Draggable';
 import { SiteSummary } from './SiteSummary';
+import { HORIZONTAL_SPACE } from '../values/constants';
 
 const SUMMARY_HEIGHT = 184;
 const UP_GESTURE_QUALIFICATION_RATIO = 0.25;
@@ -113,7 +115,7 @@ export class SiteInfoPane extends React.Component<Props, State> {
               />
 
               <ScrollView style={styles.scrollView}>
-                
+                <Text style={styles.text}>{`(Access endpoint /stations/{stationId} requires an API key, so I don't have anything to display here. This blank view was just created to show the slide-up animation.)`}</Text>
               </ScrollView>
             </Animated.View>
           );
@@ -133,5 +135,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    marginHorizontal: HORIZONTAL_SPACE,
+  },
+  text: {
+    color: `${colors.hint}`,
+    lineHeight: 24,
   },
 });
