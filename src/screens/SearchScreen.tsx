@@ -7,16 +7,14 @@ import {
   StyleProp,
   StyleSheet,
   Text,
-  TextInput,
   TouchableHighlight,
-  View,
   ViewStyle,
 } from 'react-native';
 
 import { VoltaSite } from '../values/types';
 import { colors } from '../values/colors';
 import { Divider } from '../components/Divider';
-import { HORIZONTAL_SPACE, VERTICAL_SPACE } from '../values/constants';
+import { SearchInput } from '../components/SearchInput';
 import {
   Feature,
   Point,
@@ -105,17 +103,10 @@ export class SearchScreen extends React.Component<Props & typeof DEFAULT_PROPS, 
 
     return (
       <Animated.View style={[styles.container, style, opacityStyle]}>
-        <TextInput
-          autoCapitalize="none"
-          autoCorrect={false}
-          blurOnSubmit
-          onSubmitEditing={this.handleSubmit}
-          clearButtonMode="while-editing"
+        <SearchInput
           onChangeText={this.handleChangeText}
+          onSubmitEditing={this.handleSubmit}
           placeholder={placeholder}
-          returnKeyType="search"
-          style={styles.textInput}
-          underlineColorAndroid="transparent"
           value={searchValue}
         />
 
@@ -137,13 +128,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: `${colors.white}`,
     flex: 1,
-  },
-  textInput: {
-    backgroundColor: `${colors.black.alpha(0.05)}`,
-    borderRadius: 8,
-    fontSize: 14,
-    paddingHorizontal: 16,
-    height: 48,
   },
   list: {
     marginTop: 8,
