@@ -15,52 +15,60 @@ import {
 
 import { colors } from '../values/colors';
 import { AntDesign } from '@expo/vector-icons';
+import { VoltaSite } from '../values/types';
 
 const ANNOTATION_SIZE = 48;
 
 type Props = {
   availableStations: number;
-  totalStations: number;
   coordinate: number[];
+  currentSite: VoltaSite,
   id: string;
   isSite?: boolean;
   onPress: (geo: Feature<Point, GeoJsonProperties>) => void;
   site: Feature<Point, GeoJsonProperties>,
+  totalStations: number;
 };
 
 export const Annotation: React.FunctionComponent<Props> = ({
-  availableStations, totalStations, coordinate, id, isSite, onPress, site,
-}) => (
-  <TouchableWithoutFeedback onPress={() => onPress(site)}>
-    <MapboxGL.PointAnnotation
-      key={id}
-      id={id}
-      coordinate={coordinate}
-    >
-      <View style={styles.annotationContainer}>
-        <ProgressCircle
-          bgColor={`${colors.black.alpha(0.8)}`}
-          borderWidth={5}
-          color={`${colors.secondary}`}
-          percent={availableStations / totalStations * 100}
-          radius={ANNOTATION_SIZE * 0.4}
-        >
-          <Text style={styles.counterText}>
-            {`${availableStations}`}
-          </Text>
-        </ProgressCircle>
+  availableStations, currentSite, coordinate, id, isSite, onPress, site, totalStations,
+}) => {
+  const singleSiteIndicatorStyle = currentSite ? {
+    color: `${currentSite.id === site.properties.id ? colors.secondary.darken(0.35) : colors.black.alpha(0.8)}`,
+  } : {};
 
-        {isSite && (
-          <AntDesign
-            name="caretdown"
-            size={24}
-            style={styles.icon}
-          />
-        )}
-      </View>
-    </MapboxGL.PointAnnotation>
-  </TouchableWithoutFeedback>
-);
+  return (
+    <TouchableWithoutFeedback onPress={() => onPress(site)}>
+      <MapboxGL.PointAnnotation
+        key={id}
+        id={id}
+        coordinate={coordinate}
+      >
+        <View style={styles.annotationContainer}>
+          <ProgressCircle
+            bgColor={`${colors.black.alpha(0.8)}`}
+            borderWidth={5}
+            color={`${colors.secondary}`}
+            percent={availableStations / totalStations * 100}
+            radius={ANNOTATION_SIZE * 0.4}
+          >
+            <Text style={styles.counterText}>
+              {`${availableStations}`}
+            </Text>
+          </ProgressCircle>
+
+          {isSite && (
+            <AntDesign
+              name="caretdown"
+              size={24}
+              style={[styles.icon, singleSiteIndicatorStyle]}
+            />
+          )}
+        </View>
+      </MapboxGL.PointAnnotation>
+    </TouchableWithoutFeedback>
+  );
+};
 
 const styles = StyleSheet.create({
   annotationContainer: {

@@ -290,16 +290,18 @@ export class _MapScreen extends React.Component<Props, State> {
     }
 
     const { coordinates } = geometry;
+    const { currentSite } = this.state;
     return (
       <Annotation
         availableStations={available}
-        totalStations={total}
         coordinate={coordinates}
+        currentSite={currentSite}
         id={id}
         isSite={!isCluster}
         key={id}
         onPress={onPress}
         site={dataPoint}
+        totalStations={total}
       />
     );
   };
