@@ -14,12 +14,12 @@
    ```
 3. Go to the root folder, and run `yarn; yarn start`
 4. Build and run the app:
-  - iOS
-    1. Navigate to the **ios** folder, and run `pod install`
-    2. Open Xcode and build the app
-  - Android
-    1. Open the **android** folder in Android Studio
-    2. Build the app
+    - iOS
+      1. Navigate to the **ios** folder, and run `pod install`
+      2. Open Xcode and build the app
+    - Android
+      1. Open the **android** folder in Android Studio
+      2. Build the app
 
 ## Preview
 ||||
