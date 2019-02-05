@@ -22,6 +22,8 @@
       2. Build the app
 
 ## Preview
+<img width="450" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/preview.gif">
+
 ||||
 |:-------------------------:|:-------------------------:|:-------------------------:|
 |<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/splash.png">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/01.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/02.PNG">|
