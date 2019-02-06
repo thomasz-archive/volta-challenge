@@ -19,78 +19,95 @@ const SWIPE_UP_TO_FULL_VIEW_RATIO = 0.2;
 const SWIPE_TO_DISMISS_RATIO = 0.35;
 
 type Props = {
+  isShowingFullSummary: boolean;
   onDismiss: () => void;
+  onSiteSummaryPress: (isShowingFullSummary: boolean) => void;
   site: VoltaSite,
 };
 
-type State = {
-  isFullView: boolean;
-};
+type State = {};
 
 export class SiteInfoPane extends React.Component<Props, State> {
-  state = {
-    isFullView: false,
-  };
-
-  enabled: boolean;
   translateY = new Animated.Value(0);
 
+  componentWillReceiveProps(nextProps: Props) {
+    const { isShowingFullSummary } = this.props;
+
+    if (isShowingFullSummary !== nextProps.isShowingFullSummary) {
+      this.showHideFullView(nextProps.isShowingFullSummary);
+    }
+  }
+
   handleSummaryPress = () => {
-    const { height } = Dimensions.get('window');
+    const { isShowingFullSummary, onSiteSummaryPress } = this.props;
+    
+    this.showHideFullView(!isShowingFullSummary);
 
-    const { isFullView } = this.state;
-
-    this.setState(({ isFullView }) => {
-      return {
-        isFullView: !isFullView,
-      };
-    }, () => {
-      Animated.spring(this.translateY, {
-        toValue: (isFullView ? 0 : SUMMARY_HEIGHT - height * 0.8),
-        useNativeDriver: true,
-      }).start();
-    });
+    onSiteSummaryPress(!isShowingFullSummary);
   };
 
   handleTouchStart = () => {};
 
   handleTouchMove = (top: number) => {
-    const { isFullView } = this.state;
-    const offsetY = !isFullView ? top : (
-      Math.max(0, top) + SUMMARY_HEIGHT - Dimensions.get('window').height * 0.8
+    const { isShowingFullSummary } = this.props;
+
+    const { height } = Dimensions.get('window');
+    const upGestureMaxOffset = SUMMARY_HEIGHT - height * 0.8;
+
+    const offsetY = isShowingFullSummary ? (
+      Math.max(0, top) + upGestureMaxOffset
+    ) : (
+      Math.max(top, upGestureMaxOffset)
     );
     this.translateY.setValue(offsetY);
   };
 
   handleTouchEnd = (top: number) => {
-    const { isFullView } = this.state;
+    const { isShowingFullSummary, onSiteSummaryPress } = this.props;
 
     const { height } = Dimensions.get('window');
-    const maxOffset = SUMMARY_HEIGHT - height * 0.8;
+    const upGestureMaxOffset = SUMMARY_HEIGHT - height * 0.8;
 
-    if (isFullView && top < -maxOffset * SWIPE_DOWN_TO_MINI_VIEW_RATIO) {
+    // in full view and the slide-down gesture isn't far enough to switch to the mini view
+    if (isShowingFullSummary && top < -upGestureMaxOffset * SWIPE_DOWN_TO_MINI_VIEW_RATIO) {
       Animated.spring(this.translateY, {
-        toValue: SUMMARY_HEIGHT - height * 0.8,
+        toValue: upGestureMaxOffset,
         useNativeDriver: true,
       }).start();
-    } else if (!isFullView && top < maxOffset * SWIPE_UP_TO_FULL_VIEW_RATIO) {
+
+    // in mini view and the slide-up gesture is far enough to show the full view
+    } else if (!isShowingFullSummary && top < upGestureMaxOffset * SWIPE_UP_TO_FULL_VIEW_RATIO) {
+      onSiteSummaryPress(true);
+
       Animated.spring(this.translateY, {
-        toValue: SUMMARY_HEIGHT - height * 0.8,
+        toValue: upGestureMaxOffset,
         useNativeDriver: true,
-      }).start(() => {
-        this.setState({ isFullView: true });
-      });
-    } else if (!isFullView && top > SUMMARY_HEIGHT * SWIPE_TO_DISMISS_RATIO) {
+      }).start();
+
+    // in mini view and the slide-down gesture is far enough to close the while view
+    } else if (!isShowingFullSummary && top > SUMMARY_HEIGHT * SWIPE_TO_DISMISS_RATIO) {
       const { onDismiss } = this.props;
       onDismiss();
+      
     } else {
+      // going from full to mini view, by default, doesn't show the search dialog, so
+      // calling onSiteSummaryPress(true) wouldn't apply here
+
       Animated.spring(this.translateY, {
         toValue: 0,
         useNativeDriver: true,
-      }).start(() => {
-        this.setState({ isFullView: false });
-      });
+      }).start();
+
     }
+  };
+
+  showHideFullView = (shouldShowFullSummary: boolean) => {
+    const { height } = Dimensions.get('window');
+
+    Animated.spring(this.translateY, {
+      toValue: (shouldShowFullSummary ? SUMMARY_HEIGHT - height * 0.8 : 0),
+      useNativeDriver: true,
+    }).start();
   };
 
   render() {

@@ -27,6 +27,7 @@ import {
 
 import { MAP_BOX_API } from '../values/secrets';
 import { colors } from '../values/colors';
+import { strings } from '../values/strings';
 import { HORIZONTAL_SPACE } from '../values/constants';
 import {
   Bound,
@@ -40,6 +41,8 @@ import { SiteInfoPane } from '../components/SiteInfoPane';
 import { Annotation } from '../components/Annotation';
 import { supercluster } from '../utils/supercluster';
 import { SearchScreen } from './SearchScreen';
+import { Permissions } from 'expo';
+import { ErrorDialog } from '../components/ErrorDialog';
 
 MapboxGL.setAccessToken(MAP_BOX_API);
 
@@ -61,6 +64,9 @@ type State = {
   bound?: Bound; // [westLng, southLat, eastLng, northLat]
   currentSite?: VoltaSite,
   data: Cluster[],
+  isPermissionGranted: boolean;
+  isShowingError: boolean;
+  isShowingFullSummary: boolean;
   isSearching: boolean;
   zoom?: number,
 };
@@ -101,7 +107,6 @@ export class _MapScreen extends React.Component<Props, State> {
 
   cluster: Supercluster;
   map: MapboxGL.MapView;
-  _isInitialLoad = true;
 
   constructor(props: Props) {
     super(props);
@@ -110,6 +115,9 @@ export class _MapScreen extends React.Component<Props, State> {
       bound: null,
       currentSite: null,
       data: [],
+      isPermissionGranted: true,
+      isShowingError: false,
+      isShowingFullSummary: false,
       isSearching: false,
       zoom: 11,
     };
@@ -117,10 +125,6 @@ export class _MapScreen extends React.Component<Props, State> {
     props.navigation.setParams({
       toggleSearch: this.toggleSearch,
     })
-  }
-
-  componentDidMount() {
-    this.moveToUserLocation();
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -131,38 +135,9 @@ export class _MapScreen extends React.Component<Props, State> {
 
   toggleSearch = () => {
     this.setState(({ isSearching }) => ({
+      isShowingFullSummary: false,
       isSearching: !isSearching
     }));
-  };
-
-  moveToUserLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      ({ coords: { latitude, longitude } }) => {
-        if (this._isInitialLoad && Platform.OS === 'android') {
-          // TODO: Android (at least the emulator) seems to have issue 
-          // zooming into user's location when the app first launches. 
-          // Find a better solution later.
-          this.map.setCamera({
-            centerCoordinate: [longitude, latitude],
-            zoom: DEFAULT_ZOOM_LEVEL,
-            duration: 0,
-          });
-          this._isInitialLoad = false;
-        } else {
-          this.map.moveTo([longitude, latitude], 350);
-        }
-
-        this.setState({
-          currentSite: null,
-        }, () => {
-          const { sites } = this.props;
-          this.clusterize(sites.features);
-        });
-      },
-      (error) => {
-        Alert.alert('error', `${error}`);
-      }
-    );
   };
 
   clusterize = (data: Feature<Point, GeoJsonProperties>[]) => {
@@ -182,11 +157,49 @@ export class _MapScreen extends React.Component<Props, State> {
     this.cluster.getClusters(params.bound, Math.floor(params.zoom))
   );
 
+  handleFinishRenderingMapFully = async () => {
+    const moveToLocation = (longitude: number, latitude: number) => {
+      this.map.setCamera({
+        centerCoordinate: [longitude, latitude],
+        zoom: DEFAULT_ZOOM_LEVEL,
+        duration: 350,
+      });
+  
+      this.setState({
+        currentSite: null,
+      }, () => {
+        const { sites } = this.props;
+        this.clusterize(sites.features);
+      });
+    };
+
+    const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+    if (status === 'granted') {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords: { longitude, latitude } }) => {
+          moveToLocation(longitude, latitude);
+        },
+        (error) => {
+          Alert.alert('error', `${error}`);
+        }
+      );
+
+    } else {
+      this.setState({
+        isPermissionGranted: false,
+        isShowingError: true,
+      }, () => {
+        moveToLocation(-122.40144, 37.768374);
+      });
+    }
+  };
+
   handleRegionDidChange = (geo: Feature<Point, GeoJsonProperties>) => {
     const properties = geo.properties as MapBoxOnChangeEvent;
     const visibleBounds = properties.visibleBounds;
     const zoomLevel = properties.zoomLevel;
-    
+
     const params: ClusterParamsType = {
       bound: [visibleBounds[1][0], visibleBounds[1][1], visibleBounds[0][0], visibleBounds[0][1]],
       zoom: zoomLevel,
@@ -234,6 +247,13 @@ export class _MapScreen extends React.Component<Props, State> {
     });
   };
 
+  handleSiteSummaryPress = (isShowingFullSummary: boolean) => {
+    this.setState({
+      isShowingFullSummary,
+      isSearching: false
+    });
+  };
+
   handleDismiss = () => {
     this.setState({ currentSite: null });
   };
@@ -269,6 +289,12 @@ export class _MapScreen extends React.Component<Props, State> {
         isSearching: false,
       });
     }
+  };
+
+  handleErrorDismiss = () => {
+    this.setState(({ isShowingError }) => ({
+      isShowingError: !isShowingError,
+    }));
   };
 
   renderAnnotation = (dataPoint: Cluster) => {
@@ -308,7 +334,9 @@ export class _MapScreen extends React.Component<Props, State> {
   
   render() {
     const { sites: { features } } = this.props;
-    const { currentSite, data, isSearching } = this.state;
+    const {
+      currentSite, data, isPermissionGranted, isShowingError, isShowingFullSummary, isSearching,
+    } = this.state;
 
     const { height } = Dimensions.get('window');
     const searchHeight = PixelRatio.roundToNearestPixel(height * SEARCH_HEIGHT_SCREEN_RATIO);
@@ -324,9 +352,10 @@ export class _MapScreen extends React.Component<Props, State> {
         */}
         <TouchableWithoutFeedback onPress={this.handleDismiss} style={StyleSheet.absoluteFill}>
           <MapboxGL.MapView
+            onDidFinishRenderingMapFully={this.handleFinishRenderingMapFully}
             onRegionDidChange={this.handleRegionDidChange}
             ref={(map: MapboxGL.MapView) => this.map = map}
-            showUserLocation
+            showUserLocation={isPermissionGranted}
             style={StyleSheet.absoluteFill}
             zoomLevel={DEFAULT_ZOOM_LEVEL}
           >
@@ -336,19 +365,23 @@ export class _MapScreen extends React.Component<Props, State> {
 
         {currentSite && (
           <SiteInfoPane
+            isShowingFullSummary={isShowingFullSummary}
             onDismiss={this.handleDismiss}
+            onSiteSummaryPress={this.handleSiteSummaryPress}
             site={currentSite}
           />
         )}
 
-        <TouchableWithoutFeedback onPress={this.moveToUserLocation}>
-          <View style={styles.reCenterIconContainer}>
-            <MaterialCommunityIcons
-              name="navigation"
-              size={24}
-            />
-          </View>
-        </TouchableWithoutFeedback>
+        {isPermissionGranted && (
+          <TouchableWithoutFeedback onPress={this.handleFinishRenderingMapFully}>
+            <View style={styles.reCenterIconContainer}>
+              <MaterialCommunityIcons
+                name="navigation"
+                size={24}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        )}
 
         {isSearching && (
           <SearchScreen
@@ -357,6 +390,15 @@ export class _MapScreen extends React.Component<Props, State> {
             onSelect={this.handleSelectSearchedItem}
             placeholder="Site name or zip code"
             style={[styles.searchPane, searchHeightStyle]}
+          />
+        )}
+
+        {!isPermissionGranted && (
+          <ErrorDialog
+            error={strings.locationServiceDisabled}
+            onDismiss={this.handleErrorDismiss}
+            style={styles.error}
+            visible={isShowingError}
           />
         )}
       </View>
@@ -396,6 +438,9 @@ const styles = StyleSheet.create({
     left: 8,
     top: 8,
     right: 8,
+  },
+  error: {
+    backgroundColor: `${colors.primary.lighten(0.35)}`,
   },
 });
 

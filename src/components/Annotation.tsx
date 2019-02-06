@@ -33,7 +33,7 @@ type Props = {
 export const Annotation: React.FunctionComponent<Props> = ({
   availableStations, currentSite, coordinate, id, isSite, onPress, site, totalStations,
 }) => {
-  const singleSiteIndicatorStyle = currentSite ? {
+  const iconStyle = currentSite ? {
     color: `${currentSite.id === site.properties.id ? colors.secondary.darken(0.35) : colors.black.alpha(0.8)}`,
   } : {};
 
@@ -44,25 +44,29 @@ export const Annotation: React.FunctionComponent<Props> = ({
         id={id}
         coordinate={coordinate}
       >
-        <View style={styles.annotationContainer}>
-          <ProgressCircle
-            bgColor={`${colors.black.alpha(0.8)}`}
-            borderWidth={5}
-            color={`${colors.secondary}`}
-            percent={availableStations / totalStations * 100}
-            radius={ANNOTATION_SIZE * 0.4}
-          >
-            <Text style={styles.counterText}>
-              {`${availableStations}`}
-            </Text>
-          </ProgressCircle>
+        <View>
+          <View style={styles.annotationContainer}>
+            <ProgressCircle
+              bgColor={`${colors.black.alpha(0.8)}`}
+              borderWidth={5}
+              color={`${colors.secondary}`}
+              percent={availableStations / totalStations * 100}
+              radius={ANNOTATION_SIZE * 0.4}
+            >
+              <Text style={styles.counterText}>
+                {`${availableStations}`}
+              </Text>
+            </ProgressCircle>
+          </View>
 
           {isSite && (
-            <AntDesign
-              name="caretdown"
-              size={24}
-              style={[styles.icon, singleSiteIndicatorStyle]}
-            />
+            <View style={styles.iconContainer}>
+              <AntDesign
+                name="caretdown"
+                size={18}
+                style={iconStyle}
+              />
+            </View>
           )}
         </View>
       </MapboxGL.PointAnnotation>
@@ -84,9 +88,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
   },
-  icon: {
-    color: `${colors.black.alpha(0.8)}`,
-    position: 'absolute',
-    top: ANNOTATION_SIZE - 4,
+  iconContainer: {
+    alignItems: 'center',
   },
 });

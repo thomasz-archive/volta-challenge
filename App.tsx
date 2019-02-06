@@ -2,8 +2,6 @@ import React from 'react';
 import {
   Platform,
   StatusBar,
-  StyleSheet,
-  View,
   YellowBox,
 } from 'react-native';
 import { createAppContainer } from 'react-navigation';
@@ -31,12 +29,6 @@ const App = () => (
     <AppContainer />
   </Provider>
 );
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 /* tslint:disable-next-line:no-default-export */
 export default App;
