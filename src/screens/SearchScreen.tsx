@@ -2,38 +2,34 @@ import React from 'react';
 import {
   Animated,
   FlatList,
-  Keyboard,
   ListRenderItemInfo,
   StyleProp,
   StyleSheet,
   ViewStyle,
 } from 'react-native';
+import { Feature, Point } from 'geojson';
 import cities from 'cities';
 
 import { VoltaSite, CitiesResponse } from '../values/types';
 import { colors } from '../values/colors';
 import { Divider } from '../components/Divider';
 import { SearchInput } from '../components/SearchInput';
-import {
-  Feature,
-  Point,
-} from 'geojson';
 import { SearchResultItem } from '../components/SearchResultItem';
 
-const keyExtractor = (data: Feature<Point, VoltaSite> | CitiesResponse) => (
-  (data as CitiesResponse).zipcode || (data as Feature<Point, VoltaSite>).properties.id
-);
+const keyExtractor = (data: Feature<Point, VoltaSite> | CitiesResponse) =>
+  (data as CitiesResponse).zipcode ||
+  (data as Feature<Point, VoltaSite>).properties.id;
 
 type Props = {
-  data: Feature<Point, VoltaSite>[],
+  data: Array<Feature<Point, VoltaSite>>;
   onDismiss: () => void;
   onSelect: (data: Feature<Point, VoltaSite> | CitiesResponse) => void;
   placeholder: string;
-  style: StyleProp<ViewStyle>,
+  style: StyleProp<ViewStyle>;
 };
 
 type State = {
-  result: (Feature<Point, VoltaSite> | string)[];
+  result: Array<Feature<Point, VoltaSite> | string>;
   searchValue: string;
 };
 
@@ -55,12 +51,15 @@ export class SearchScreen extends React.Component<Props, State> {
   handleChangeText = (searchValue: string) => {
     const { data } = this.props;
     const input = searchValue.toLowerCase();
-    const sitesResult = searchValue ? (
-      data.filter(d => d.properties.name.toLowerCase().indexOf(input) !== -1)
-    ) : [];
+    const sitesResult = searchValue
+      ? data.filter(d => d.properties.name.toLowerCase().indexOf(input) !== -1)
+      : [];
 
     const zipCode = Number(searchValue);
-    const isZipCode = !Number.isNaN(Number(searchValue)) && zipCode >= 10000 && zipCode <= 99999;
+    const isZipCode =
+      !Number.isNaN(Number(searchValue)) &&
+      zipCode >= 10000 &&
+      zipCode <= 99999;
     const cityResponse = isZipCode ? cities.zip_lookup(zipCode) : undefined;
     const cityResult = isZipCode && cityResponse ? [cityResponse] : [];
 
@@ -70,36 +69,34 @@ export class SearchScreen extends React.Component<Props, State> {
     });
   };
 
-  handleSubmit = () => {
-    const { onDismiss } = this.props;
-    const { searchValue } = this.state;
-    
-    if (searchValue) {
-      Keyboard.dismiss();
-    } else {
-      onDismiss();
-    }
-  }
-
-  handleSearchItemPress = (data: Feature<Point, VoltaSite> | CitiesResponse) => {
+  handleSearchItemPress = (
+    data: Feature<Point, VoltaSite> | CitiesResponse
+  ) => {
     const { onSelect } = this.props;
     onSelect(data);
-  }
+  };
 
-  renderSearchItem = (info: ListRenderItemInfo<Feature<Point, VoltaSite> | CitiesResponse>) => {
+  renderSearchItem = (
+    info: ListRenderItemInfo<Feature<Point, VoltaSite> | CitiesResponse>
+  ) => {
     const { item } = info;
     // @ts-ignore
     const isSiteData = !!item.properties;
 
     if (isSiteData) {
       const site = item as Feature<Point, VoltaSite>;
-      const { properties: { chargers, name } } = site;
+      const {
+        properties: { chargers, name },
+      } = site;
       const { available, total } = chargers[0];
 
       const descriptionStyle = {
-        color: `${!available? colors.hint.lighten(0.15) : colors.secondary.darken(0.4)}`,
-      }
+        color: `${
+          !available ? colors.hint.lighten(0.15) : colors.secondary.darken(0.4)
+        }`,
+      };
 
+      /* prettier-ignore */
       return (
         <SearchResultItem
           onPress={() => this.handleSearchItemPress(site)}
@@ -134,8 +131,8 @@ export class SearchScreen extends React.Component<Props, State> {
     return (
       <Animated.View style={[styles.container, style || {}, opacityStyle]}>
         <SearchInput
+          blurOnSubmit
           onChangeText={this.handleChangeText}
-          onSubmitEditing={this.handleSubmit}
           placeholder={placeholder}
           value={searchValue}
         />

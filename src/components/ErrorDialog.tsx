@@ -15,7 +15,7 @@ type Props = {
   autoDismissInterval?: number;
   error?: string;
   onDismiss: () => void;
-  style?: StyleProp<ViewStyle>,
+  style?: StyleProp<ViewStyle>;
   visible: boolean;
 };
 
@@ -45,7 +45,7 @@ export class ErrorDialog extends React.Component<Props, State> {
     }).start(() => {
       this.startTimer();
     });
-  }
+  };
 
   startTimer = () => {
     const { autoDismissInterval, onDismiss } = this.props;
@@ -53,7 +53,7 @@ export class ErrorDialog extends React.Component<Props, State> {
     if (autoDismissInterval && autoDismissInterval > 0) {
       this.stopTimer();
       this.intervalId = setInterval(() => {
-        // return statement is used to override setInterval (from the timers library) 
+        // return statement is used to override setInterval (from the timers library)
         // which has the same method name, but different return value type
         return onDismiss();
       }, autoDismissInterval);
@@ -66,7 +66,7 @@ export class ErrorDialog extends React.Component<Props, State> {
 
   render() {
     const { onDismiss, error, style, visible } = this.props;
-    
+
     if (!error || !visible) return null;
 
     const opacityStyle = {

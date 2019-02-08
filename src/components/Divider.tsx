@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import Color from 'color';
 
 type Props = {
-  color?: Color,
+  color?: Color;
   horizontal?: boolean;
   padding?: number;
   size?: number;
@@ -19,7 +19,11 @@ const DEFAULT_PROPS = {
 };
 
 export const Divider: React.FunctionComponent<Props> = ({
-  color, horizontal, padding, size, spacing,
+  color,
+  horizontal,
+  padding,
+  size,
+  spacing,
 }) => {
   const sharedStyle = {
     backgroundColor: `${color}`,

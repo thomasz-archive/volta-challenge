@@ -1,15 +1,11 @@
 import React from 'react';
-import {
-  StyleSheet,
-  TextInput,
-  View,
-  TextInputProps,
-} from 'react-native';
+import { StyleSheet, TextInput, View, TextInputProps } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { colors } from '../values/colors';
 
-export const SearchInput: React.FunctionComponent<TextInputProps> = (props) => {
+export const SearchInput: React.FunctionComponent<TextInputProps> = props => {
+  /* prettier-ignore */
   return (
     <View style={styles.container}>
       <MaterialIcons

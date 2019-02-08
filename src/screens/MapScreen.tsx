@@ -4,11 +4,11 @@ import {
   Dimensions,
   Image,
   PixelRatio,
-  Platform,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import { Permissions } from 'expo';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   NavigationScreenConfig,
@@ -18,12 +18,8 @@ import {
 } from 'react-navigation';
 import { connect } from 'react-redux';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
-import { Supercluster, Cluster } from 'supercluster'
-import {
-  Feature,
-  GeoJsonProperties,
-  Point,
-} from 'geojson';
+import { Supercluster, Cluster } from 'supercluster';
+import { Feature, GeoJsonProperties, Point } from 'geojson';
 
 import { MAP_BOX_API } from '../values/secrets';
 import { colors } from '../values/colors';
@@ -41,7 +37,6 @@ import { SiteInfoPane } from '../components/SiteInfoPane';
 import { Annotation } from '../components/Annotation';
 import { supercluster } from '../utils/supercluster';
 import { SearchScreen } from './SearchScreen';
-import { Permissions } from 'expo';
 import { ErrorDialog } from '../components/ErrorDialog';
 
 MapboxGL.setAccessToken(MAP_BOX_API);
@@ -51,28 +46,30 @@ const MAX_ZOOM_LEVEL = 16;
 const SEARCH_HEIGHT_SCREEN_RATIO = 0.6;
 
 type ClusterParamsType = {
-  bound: Bound,
+  bound: Bound;
   zoom: number;
-}
+};
 
 type Props = {
-  navigation: NavigationScreenProp<NavigationState>
-  sites: GeoJSONCollection,
+  navigation: NavigationScreenProp<NavigationState>;
+  sites: GeoJSONCollection;
 };
 
 type State = {
   bound?: Bound; // [westLng, southLat, eastLng, northLat]
-  currentSite?: VoltaSite,
-  data: Cluster[],
+  currentSite?: VoltaSite;
+  data: Cluster[];
   isPermissionGranted: boolean;
   isShowingError: boolean;
   isShowingFullSummary: boolean;
   isSearching: boolean;
-  zoom?: number,
+  zoom?: number;
 };
 
 export class _MapScreen extends React.Component<Props, State> {
-  static navigationOptions: NavigationScreenConfig<NavigationScreenOptions> = ({ navigation }) => {
+  static navigationOptions: NavigationScreenConfig<NavigationScreenOptions> = ({
+    navigation,
+  }) => {
     const params = navigation.state.params || {};
     const toggleSearch = params.toggleSearch || (() => {});
 
@@ -84,9 +81,9 @@ export class _MapScreen extends React.Component<Props, State> {
           style={styles.headerIcon}
           onPress={() => navigation.toggleDrawer()}
         />
-        ),
-        headerTitle:(
-          <View style={styles.headerLogoContainer}> 
+      ),
+      headerTitle: (
+        <View style={styles.headerLogoContainer}>
           <Image
             style={styles.headerLogo}
             resizeMode="contain"
@@ -102,7 +99,7 @@ export class _MapScreen extends React.Component<Props, State> {
           onPress={toggleSearch}
         />
       ),
-    }
+    };
   };
 
   cluster: Supercluster;
@@ -110,7 +107,7 @@ export class _MapScreen extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-  
+
     this.state = {
       bound: null,
       currentSite: null,
@@ -124,7 +121,7 @@ export class _MapScreen extends React.Component<Props, State> {
 
     props.navigation.setParams({
       toggleSearch: this.toggleSearch,
-    })
+    });
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -136,11 +133,11 @@ export class _MapScreen extends React.Component<Props, State> {
   toggleSearch = () => {
     this.setState(({ isSearching }) => ({
       isShowingFullSummary: false,
-      isSearching: !isSearching
+      isSearching: !isSearching,
     }));
   };
 
-  clusterize = (data: Feature<Point, GeoJsonProperties>[]) => {
+  clusterize = (data: Array<Feature<Point, GeoJsonProperties>>) => {
     if (!this.cluster) this.cluster = supercluster.init();
     this.cluster.load(data);
 
@@ -152,10 +149,9 @@ export class _MapScreen extends React.Component<Props, State> {
     }
   };
 
-  getClusters = (params: ClusterParamsType) => (
+  getClusters = (params: ClusterParamsType) =>
     // zoom must be an integer
-    this.cluster.getClusters(params.bound, Math.floor(params.zoom))
-  );
+    this.cluster.getClusters(params.bound, Math.floor(params.zoom));
 
   handleFinishRenderingMapFully = async () => {
     const moveToLocation = (longitude: number, latitude: number) => {
@@ -164,13 +160,16 @@ export class _MapScreen extends React.Component<Props, State> {
         zoom: DEFAULT_ZOOM_LEVEL,
         duration: 350,
       });
-  
-      this.setState({
-        currentSite: null,
-      }, () => {
-        const { sites } = this.props;
-        this.clusterize(sites.features);
-      });
+
+      this.setState(
+        {
+          currentSite: null,
+        },
+        () => {
+          const { sites } = this.props;
+          this.clusterize(sites.features);
+        }
+      );
     };
 
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -180,18 +179,20 @@ export class _MapScreen extends React.Component<Props, State> {
         ({ coords: { longitude, latitude } }) => {
           moveToLocation(longitude, latitude);
         },
-        (error) => {
+        error => {
           Alert.alert('error', `${error}`);
         }
       );
-
     } else {
-      this.setState({
-        isPermissionGranted: false,
-        isShowingError: true,
-      }, () => {
-        moveToLocation(-122.40144, 37.768374);
-      });
+      this.setState(
+        {
+          isPermissionGranted: false,
+          isShowingError: true,
+        },
+        () => {
+          moveToLocation(-122.40144, 37.768374);
+        }
+      );
     }
   };
 
@@ -201,11 +202,18 @@ export class _MapScreen extends React.Component<Props, State> {
     const zoomLevel = properties.zoomLevel;
 
     const params: ClusterParamsType = {
-      bound: [visibleBounds[1][0], visibleBounds[1][1], visibleBounds[0][0], visibleBounds[0][1]],
+      bound: [
+        visibleBounds[1][0],
+        visibleBounds[1][1],
+        visibleBounds[0][0],
+        visibleBounds[0][1],
+      ],
       zoom: zoomLevel,
     };
 
-    const { sites: { features } } = this.props;
+    const {
+      sites: { features },
+    } = this.props;
     if (!this.cluster) this.cluster = supercluster.init();
     this.cluster.load(features);
 
@@ -217,7 +225,10 @@ export class _MapScreen extends React.Component<Props, State> {
   };
 
   handleRegionPress = (geo: Feature<Point, GeoJsonProperties>) => {
-    const { geometry: { coordinates }, properties } = geo;
+    const {
+      geometry: { coordinates },
+      properties,
+    } = geo;
     const clusterId = properties['cluster_id'];
     // @ts-ignore - getClusterExpansionZoom doesn't accept second parameter per docs
     const expansionZoom = this.cluster.getClusterExpansionZoom(clusterId);
@@ -232,11 +243,13 @@ export class _MapScreen extends React.Component<Props, State> {
   };
 
   handleSingleSitePress = (geo: Feature<Point, GeoJsonProperties>) => {
-    const { geometry: { coordinates } } = geo;
+    const {
+      geometry: { coordinates },
+    } = geo;
     const properties = geo.properties as VoltaSite;
     const { id } = properties;
 
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const { currentSite } = prevState;
       const dismissCurrentSite = currentSite && currentSite.id === id;
       if (!dismissCurrentSite) this.map.moveTo(coordinates, 350);
@@ -250,7 +263,7 @@ export class _MapScreen extends React.Component<Props, State> {
   handleSiteSummaryPress = (isShowingFullSummary: boolean) => {
     this.setState({
       isShowingFullSummary,
-      isSearching: false
+      isSearching: false,
     });
   };
 
@@ -258,12 +271,17 @@ export class _MapScreen extends React.Component<Props, State> {
     this.setState({ currentSite: null });
   };
 
-  handleSelectSearchedItem = (data: Feature<Point, VoltaSite> | CitiesResponse) => {
+  handleSelectSearchedItem = (
+    data: Feature<Point, VoltaSite> | CitiesResponse
+  ) => {
     // @ts-ignore
     const isSiteData = !!data.properties;
 
     if (isSiteData) {
-      const { geometry: { coordinates }, properties } = data as Feature<Point, VoltaSite>;
+      const {
+        geometry: { coordinates },
+        properties,
+      } = data as Feature<Point, VoltaSite>;
 
       this.map.setCamera({
         centerCoordinate: coordinates,
@@ -300,7 +318,9 @@ export class _MapScreen extends React.Component<Props, State> {
   renderAnnotation = (dataPoint: Cluster) => {
     const { geometry, properties } = dataPoint;
     const isCluster = !!properties['cluster_id'];
-    let id: string, available: number, total: number, 
+    let id: string,
+      available: number,
+      total: number,
       onPress: (geo: Feature<Point, GeoJsonProperties>) => void;
 
     if (isCluster) {
@@ -331,30 +351,43 @@ export class _MapScreen extends React.Component<Props, State> {
       />
     );
   };
-  
+
   render() {
-    const { sites: { features } } = this.props;
     const {
-      currentSite, data, isPermissionGranted, isShowingError, isShowingFullSummary, isSearching,
+      sites: { features },
+    } = this.props;
+    const {
+      currentSite,
+      data,
+      isPermissionGranted,
+      isShowingError,
+      isShowingFullSummary,
+      isSearching,
     } = this.state;
 
     const { height } = Dimensions.get('window');
-    const searchHeight = PixelRatio.roundToNearestPixel(height * SEARCH_HEIGHT_SCREEN_RATIO);
+    const searchHeight = PixelRatio.roundToNearestPixel(
+      height * SEARCH_HEIGHT_SCREEN_RATIO
+    );
     const searchHeightStyle = {
       maxHeight: searchHeight,
     };
 
+    /* prettier-ignore */
     return (
       <View style={StyleSheet.absoluteFill}>
         {/*
           onPress prop of MapView doesn't work so well when there's an overlay on top 
           (it requires two touches to active the touch event).
         */}
-        <TouchableWithoutFeedback onPress={this.handleDismiss} style={StyleSheet.absoluteFill}>
+        <TouchableWithoutFeedback
+          onPress={this.handleDismiss}
+          style={StyleSheet.absoluteFill}
+        >
           <MapboxGL.MapView
             onDidFinishRenderingMapFully={this.handleFinishRenderingMapFully}
             onRegionDidChange={this.handleRegionDidChange}
-            ref={(map: MapboxGL.MapView) => this.map = map}
+            ref={(map: MapboxGL.MapView) => (this.map = map)}
             showUserLocation={isPermissionGranted}
             style={StyleSheet.absoluteFill}
             zoomLevel={DEFAULT_ZOOM_LEVEL}
@@ -451,6 +484,8 @@ export const MapScreen = (() => {
 
   const mapDispatchToProps = {};
 
-  return connect(mapStateToProps, mapDispatchToProps)(_MapScreen);
+  return connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(_MapScreen);
 })();
-

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { colors } from '../values/colors';
+import { strings } from '../values/strings';
 import { VoltaSite } from '../values/types';
 import { Draggable } from './Draggable';
 import { SiteSummary } from './SiteSummary';
@@ -22,7 +23,7 @@ type Props = {
   isShowingFullSummary: boolean;
   onDismiss: () => void;
   onSiteSummaryPress: (isShowingFullSummary: boolean) => void;
-  site: VoltaSite,
+  site: VoltaSite;
 };
 
 type State = {};
@@ -40,7 +41,7 @@ export class SiteInfoPane extends React.Component<Props, State> {
 
   handleSummaryPress = () => {
     const { isShowingFullSummary, onSiteSummaryPress } = this.props;
-    
+
     this.showHideFullView(!isShowingFullSummary);
 
     onSiteSummaryPress(!isShowingFullSummary);
@@ -54,11 +55,9 @@ export class SiteInfoPane extends React.Component<Props, State> {
     const { height } = Dimensions.get('window');
     const upGestureMaxOffset = SUMMARY_HEIGHT - height * 0.8;
 
-    const offsetY = isShowingFullSummary ? (
-      Math.max(0, top) + upGestureMaxOffset
-    ) : (
-      Math.max(top, upGestureMaxOffset)
-    );
+    const offsetY = isShowingFullSummary
+      ? Math.max(0, top) + upGestureMaxOffset
+      : Math.max(top, upGestureMaxOffset);
     this.translateY.setValue(offsetY);
   };
 
@@ -69,14 +68,20 @@ export class SiteInfoPane extends React.Component<Props, State> {
     const upGestureMaxOffset = SUMMARY_HEIGHT - height * 0.8;
 
     // in full view and the slide-down gesture isn't far enough to switch to the mini view
-    if (isShowingFullSummary && top < -upGestureMaxOffset * SWIPE_DOWN_TO_MINI_VIEW_RATIO) {
+    if (
+      isShowingFullSummary &&
+      top < -upGestureMaxOffset * SWIPE_DOWN_TO_MINI_VIEW_RATIO
+    ) {
       Animated.spring(this.translateY, {
         toValue: upGestureMaxOffset,
         useNativeDriver: true,
       }).start();
 
-    // in mini view and the slide-up gesture is far enough to show the full view
-    } else if (!isShowingFullSummary && top < upGestureMaxOffset * SWIPE_UP_TO_FULL_VIEW_RATIO) {
+      // in mini view and the slide-up gesture is far enough to show the full view
+    } else if (
+      !isShowingFullSummary &&
+      top < upGestureMaxOffset * SWIPE_UP_TO_FULL_VIEW_RATIO
+    ) {
       onSiteSummaryPress(true);
 
       Animated.spring(this.translateY, {
@@ -84,11 +89,13 @@ export class SiteInfoPane extends React.Component<Props, State> {
         useNativeDriver: true,
       }).start();
 
-    // in mini view and the slide-down gesture is far enough to close the while view
-    } else if (!isShowingFullSummary && top > SUMMARY_HEIGHT * SWIPE_TO_DISMISS_RATIO) {
+      // in mini view and the slide-down gesture is far enough to close the while view
+    } else if (
+      !isShowingFullSummary &&
+      top > SUMMARY_HEIGHT * SWIPE_TO_DISMISS_RATIO
+    ) {
       const { onDismiss } = this.props;
       onDismiss();
-      
     } else {
       // going from full to mini view, by default, doesn't show the search dialog, so
       // calling onSiteSummaryPress(true) wouldn't apply here
@@ -97,7 +104,6 @@ export class SiteInfoPane extends React.Component<Props, State> {
         toValue: 0,
         useNativeDriver: true,
       }).start();
-
     }
   };
 
@@ -105,7 +111,7 @@ export class SiteInfoPane extends React.Component<Props, State> {
     const { height } = Dimensions.get('window');
 
     Animated.spring(this.translateY, {
-      toValue: (shouldShowFullSummary ? SUMMARY_HEIGHT - height * 0.8 : 0),
+      toValue: shouldShowFullSummary ? SUMMARY_HEIGHT - height * 0.8 : 0,
       useNativeDriver: true,
     }).start();
   };
@@ -130,15 +136,19 @@ export class SiteInfoPane extends React.Component<Props, State> {
             transform: [{ translateY: this.translateY }],
           };
 
+          /* prettier-ignore */
           return (
-            <Animated.View {...handlers} style={[styles.container, positionStyle, translateYStyle]}>
+            <Animated.View
+              {...handlers}
+              style={[styles.container, positionStyle, translateYStyle]}
+            >
               <SiteSummary
                 onPress={this.handleSummaryPress}
                 site={site}
               />
 
               <ScrollView style={styles.scrollView}>
-                <Text style={styles.text}>{`(Access endpoint /stations/{stationId} requires an API key, so I don't have anything to display here. This blank view was just created to show the slide-up animation.)`}</Text>
+                <Text style={styles.text}>{strings.emptySiteInfoDetail}</Text>
               </ScrollView>
             </Animated.View>
           );

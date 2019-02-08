@@ -29,5 +29,8 @@ export const DataLoader = (() => {
     loadAllSites,
   };
 
-  return connect(mapStateToProps, mapDispatchToProps)(_DataLoader);
+  return connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(_DataLoader);
 })();

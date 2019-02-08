@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 
 import { ProgressBar } from './ProgressBar';
 import { colors } from '../values/colors';
@@ -18,25 +13,22 @@ type Props = {
   site: VoltaSite;
 };
 
-export const SiteSummary: React.FunctionComponent<Props> = (props) => {
+export const SiteSummary: React.FunctionComponent<Props> = props => {
   const { onPress, site } = props;
   const { available, total, level } = site.chargers[0];
 
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.summary}>
-        <Text
-          ellipsizeMode="tail"
-          numberOfLines={2}
-          style={styles.siteName}
-        >
+        <Text ellipsizeMode="tail" numberOfLines={2} style={styles.siteName}>
           {site.name}
         </Text>
 
         <View style={styles.progressBar}>
-          <ProgressBar percent={available / total}/>
+          <ProgressBar percent={available / total} />
         </View>
 
+        {/* prettier-ignore */}
         <Text style={styles.chargers}>
           {`${available} of ${total} charger${total >= 2 ? 's' : ''} available - ${level}`}
         </Text>

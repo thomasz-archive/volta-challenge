@@ -13,8 +13,8 @@ type GestureOffset = {
 };
 
 type DraggableChildrenArgs = {
-  dragging: boolean,
-  handlers: GestureResponderHandlers,
+  dragging: boolean;
+  handlers: GestureResponderHandlers;
 };
 
 type OriginalProps = {
@@ -40,11 +40,12 @@ export class Draggable extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-  
+
     this.state = {
       dragging: false,
     };
 
+    /* prettier-ignore */
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: this.handleStartShouldSetPanResponder,
       onPanResponderGrant: this.handlePanResponderGrant,
@@ -64,16 +65,23 @@ export class Draggable extends React.Component<Props, State> {
   handlePanResponderGrant = () => {
     const { onTouchStart } = this.props;
 
-    this.setState({
-      dragging: true,
-    }, () => onTouchStart());
+    this.setState(
+      {
+        dragging: true,
+      },
+      () => onTouchStart()
+    );
   };
 
-  handleMoveShouldSetPanResponderCapture = (e: GestureResponderEvent, gestureState: PanResponderGestureState) => (
-    gestureState.dx != 0 && gestureState.dy != 0
-  );
+  handleMoveShouldSetPanResponderCapture = (
+    e: GestureResponderEvent,
+    gestureState: PanResponderGestureState
+  ) => gestureState.dx !== 0 && gestureState.dy !== 0;
 
-  handlePanResponderMove = (e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+  handlePanResponderMove = (
+    e: GestureResponderEvent,
+    gestureState: PanResponderGestureState
+  ) => {
     const { onTouchMove } = this.props;
 
     const offset = {
@@ -84,7 +92,10 @@ export class Draggable extends React.Component<Props, State> {
     onTouchMove(offset);
   };
 
-  handlePanResponderEnd = (e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+  handlePanResponderEnd = (
+    e: GestureResponderEvent,
+    gestureState: PanResponderGestureState
+  ) => {
     const { onTouchMove, onTouchEnd } = this.props;
 
     const offset = {
@@ -92,12 +103,15 @@ export class Draggable extends React.Component<Props, State> {
       top: gestureState.dy,
     };
 
-    this.setState({
-      dragging: false,
-    }, () => {
-      onTouchMove(offset);
-      onTouchEnd(offset);
-    });
+    this.setState(
+      {
+        dragging: false,
+      },
+      () => {
+        onTouchMove(offset);
+        onTouchEnd(offset);
+      }
+    );
   };
 
   render() {

@@ -1,7 +1,4 @@
-import {
-  Feature,
-  Point,
-} from 'geojson';
+import { Feature, Point } from 'geojson';
 
 export type Bound = [number, number, number, number];
 
@@ -25,16 +22,16 @@ export type CitiesResponse = {
 
 export type GeoJSONCollection = {
   type: string;
-  features: Feature<Point, VoltaSite>[];
+  features: Array<Feature<Point, VoltaSite>>;
 };
 
 export type SiteMetrics = {
   chargers: {
-    available: number,
-    total: number,
+    available: number;
+    total: number;
   };
-  stations: object,
-  chargerStatus: object,
+  stations: object;
+  chargerStatus: object;
 };
 
 export type VoltaLocation = {
@@ -51,9 +48,9 @@ export type VoltaStation = {
 };
 
 export type VoltaChargers = {
-  available: number,
-  total: number,
-  level: string,
+  available: number;
+  total: number;
+  level: string;
 };
 
 export type VoltaSite = {

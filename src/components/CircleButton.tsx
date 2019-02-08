@@ -40,7 +40,13 @@ export class CircleButton extends React.Component<Props> {
 
   render() {
     const {
-      backgroundColor, buttonSize, iconColor, iconSize, name, onPress, style,
+      backgroundColor,
+      buttonSize,
+      iconColor,
+      iconSize,
+      name,
+      onPress,
+      style,
     } = this.props;
 
     const containerStyle = {
@@ -57,8 +63,11 @@ export class CircleButton extends React.Component<Props> {
       transform: [{ scale: this.scale }],
     };
 
-    const AnimatedMaterialIcons = Animated.createAnimatedComponent(MaterialIcons);
-  
+    const AnimatedMaterialIcons = Animated.createAnimatedComponent(
+      MaterialIcons
+    );
+
+    /* prettier-ignore */
     return (
       <TouchableWithoutFeedback
         onPress={onPress}

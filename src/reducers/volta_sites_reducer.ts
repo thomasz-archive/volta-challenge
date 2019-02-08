@@ -1,6 +1,4 @@
-import {
-  VOLTA_LOAD_ALL_SITES,
-} from '../actions/types';
+import { VOLTA_LOAD_ALL_SITES } from '../actions/types';
 import { VoltaActionType } from '../actions/volta_actions';
 import { GeoJSONCollection } from '../values/types';
 
@@ -11,7 +9,10 @@ const INITIAL_STATE: VoltaSitesReduxState = {
   features: [],
 };
 
-export const voltaSitesReducer = (state = INITIAL_STATE, action: VoltaActionType) => {
+export const voltaSitesReducer = (
+  state = INITIAL_STATE,
+  action: VoltaActionType
+) => {
   switch (action.type) {
     case VOLTA_LOAD_ALL_SITES:
       return action.sites;

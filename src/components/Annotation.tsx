@@ -1,20 +1,11 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
-import ProgressCircle from 'react-native-progress-circle'
-import {
-  Feature,
-  GeoJsonProperties,
-  Point,
-} from 'geojson';
+import ProgressCircle from 'react-native-progress-circle';
+import { Feature, GeoJsonProperties, Point } from 'geojson';
 
 import { colors } from '../values/colors';
-import { AntDesign } from '@expo/vector-icons';
 import { VoltaSite } from '../values/types';
 
 const ANNOTATION_SIZE = 48;
@@ -22,21 +13,34 @@ const ANNOTATION_SIZE = 48;
 type Props = {
   availableStations: number;
   coordinate: number[];
-  currentSite: VoltaSite,
+  currentSite: VoltaSite;
   id: string;
   isSite?: boolean;
   onPress: (geo: Feature<Point, GeoJsonProperties>) => void;
-  site: Feature<Point, GeoJsonProperties>,
+  site: Feature<Point, GeoJsonProperties>;
   totalStations: number;
 };
 
 export const Annotation: React.FunctionComponent<Props> = ({
-  availableStations, currentSite, coordinate, id, isSite, onPress, site, totalStations,
+  availableStations,
+  currentSite,
+  coordinate,
+  id,
+  isSite,
+  onPress,
+  site,
+  totalStations,
 }) => {
-  const iconStyle = currentSite ? {
-    color: `${currentSite.id === site.properties.id ? colors.secondary.darken(0.35) : colors.black.alpha(0.8)}`,
-  } : {};
+  /* prettier-ignore */
+  const indicatorColorStyle = currentSite && (
+    currentSite.id === site.properties.id
+      ? colors.secondary.darken(0.35)
+      : colors.black.alpha(0.8)
+  );
 
+  const indicatorStyle = currentSite ? { color: `${indicatorColorStyle}` } : {};
+
+  /* prettier-ignore */
   return (
     <TouchableWithoutFeedback onPress={() => onPress(site)}>
       <MapboxGL.PointAnnotation
@@ -50,12 +54,10 @@ export const Annotation: React.FunctionComponent<Props> = ({
               bgColor={`${colors.black.alpha(0.8)}`}
               borderWidth={5}
               color={`${colors.secondary}`}
-              percent={availableStations / totalStations * 100}
+              percent={(availableStations / totalStations) * 100}
               radius={ANNOTATION_SIZE * 0.4}
             >
-              <Text style={styles.counterText}>
-                {`${availableStations}`}
-              </Text>
+              <Text style={styles.counterText}>{`${availableStations}`}</Text>
             </ProgressCircle>
           </View>
 
@@ -64,7 +66,7 @@ export const Annotation: React.FunctionComponent<Props> = ({
               <AntDesign
                 name="caretdown"
                 size={18}
-                style={iconStyle}
+                style={indicatorStyle}
               />
             </View>
           )}

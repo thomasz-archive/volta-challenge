@@ -43,7 +43,7 @@ export class ProgressBar extends React.Component<Props, State> {
 
     return (
       <View
-        onLayout={({ nativeEvent: { layout }}) => {
+        onLayout={({ nativeEvent: { layout } }) => {
           const { width } = Dimensions.get('window');
           this.left = (width - layout.width) / 2;
 
@@ -70,6 +70,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: -width,
     top: 0,
-    width: width,
+    width,
   },
 });
