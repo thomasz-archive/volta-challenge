@@ -50,14 +50,15 @@ export class CircleButton extends React.Component<Props> {
     } = this.props;
 
     const containerStyle = {
-      alignItems: 'center' as 'center',
+      alignItems: 'center',
       backgroundColor: `${backgroundColor}`,
       borderRadius: buttonSize / 2,
       height: buttonSize,
-      justifyContent: 'center' as 'center',
+      justifyContent: 'center',
       transform: [{ scale: this.scale }],
       width: buttonSize,
     };
+
     const iconStyle = {
       color: `${iconColor}`,
       transform: [{ scale: this.scale }],

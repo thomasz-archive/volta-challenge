@@ -52,10 +52,9 @@ export class ErrorDialog extends React.Component<Props, State> {
 
     if (autoDismissInterval && autoDismissInterval > 0) {
       this.stopTimer();
-      this.intervalId = setInterval(() => {
-        // return statement is used to override setInterval (from the timers library)
-        // which has the same method name, but different return value type
-        return onDismiss();
+
+      this.intervalId = window.setInterval(() => {
+        onDismiss();
       }, autoDismissInterval);
     }
   };
@@ -73,6 +72,7 @@ export class ErrorDialog extends React.Component<Props, State> {
       opacity: this.opacity,
     };
 
+    /* prettier-ignore */
     return (
       <Animated.View style={[styles.container, style, opacityStyle]}>
         <Text style={styles.errorText}>{error}</Text>

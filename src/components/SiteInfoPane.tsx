@@ -125,6 +125,7 @@ export class SiteInfoPane extends React.Component<Props, State> {
 
     const { site } = this.props;
 
+    /* prettier-ignore */
     return (
       <Draggable
         onTouchStart={this.handleTouchStart}

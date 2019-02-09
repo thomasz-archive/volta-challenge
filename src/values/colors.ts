@@ -1,4 +1,3 @@
-// @ts-ignore
 import Color from 'color';
 
 export const colors = {

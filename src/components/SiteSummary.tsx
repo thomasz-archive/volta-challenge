@@ -17,6 +17,7 @@ export const SiteSummary: React.FunctionComponent<Props> = props => {
   const { onPress, site } = props;
   const { available, total, level } = site.chargers[0];
 
+  /* prettier-ignore */
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.summary}>

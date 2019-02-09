@@ -36,20 +36,23 @@ export class ProgressBar extends React.Component<Props, State> {
     }).start();
   };
 
+  handleLayout = ({ nativeEvent: { layout } }) => {
+    const { width } = Dimensions.get('window');
+    this.left = (width - layout.width) / 2;
+
+    const { percent } = this.props;
+    this.playAnimation(percent);
+  };
+
   render() {
     const translateXStyle = {
       transform: [{ translateX: this.translateX }],
     };
 
+    /* prettier-ignore */
     return (
       <View
-        onLayout={({ nativeEvent: { layout } }) => {
-          const { width } = Dimensions.get('window');
-          this.left = (width - layout.width) / 2;
-
-          const { percent } = this.props;
-          this.playAnimation(percent);
-        }}
+        onLayout={this.handleLayout}
         style={styles.container}
       >
         <Animated.View style={[styles.progress, translateXStyle]} />

@@ -3,9 +3,19 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "build",
-    "skipLibCheck": true,
-    "lib": ["es2015"]
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es2015"
+    ],
+    "skipLibCheck": true
   },
-  "include": ["src/*.ts", "src/**/*.ts", "test/*.ts", "test/**/*.ts"],
-  "files": ["custom.d.ts"]
+  "include": [
+    "src/*.ts",
+    "src/**/*.ts",
+    "test/*.ts",
+    "test/**/*.ts"
+  ],
+  "files": [
+    "custom.d.ts"
+  ]
 }

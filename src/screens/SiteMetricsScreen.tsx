@@ -87,7 +87,13 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
     section: SectionListData<MetricsPair>;
   }) => {
     const { title } = section;
-    return <Text style={styles.header}>{title}</Text>;
+
+    /* prettier-ignore */
+    return (
+      <Text style={styles.header}>
+        {title}
+      </Text>
+    );
   };
 
   renderMetricsSectionListItem = (
@@ -101,8 +107,11 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
       word => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()
     );
 
+    /* prettier-ignore */
     return (
-      <Text style={styles.listItem}>{` \u2022  ${titleKey}: ${value}`}</Text>
+      <Text style={styles.listItem}>
+        {` \u2022  ${titleKey}: ${value}`}
+      </Text>
     );
   };
 
@@ -111,6 +120,7 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
 
     if (isLoading) return <ActivityIndicator />;
 
+    /* prettier-ignore */
     return (
       <SafeAreaView style={styles.safeAreaView}>
         <SectionList

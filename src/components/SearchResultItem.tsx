@@ -16,6 +16,7 @@ type Props = {
   row2Text: string;
 };
 
+/* prettier-ignore */
 export const SearchResultItem: React.FunctionComponent<Props> = ({
   onPress,
   row1Style,

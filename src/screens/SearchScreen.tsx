@@ -80,8 +80,7 @@ export class SearchScreen extends React.Component<Props, State> {
     info: ListRenderItemInfo<Feature<Point, VoltaSite> | CitiesResponse>
   ) => {
     const { item } = info;
-    // @ts-ignore
-    const isSiteData = !!item.properties;
+    const isSiteData = 'properties' in item;
 
     if (isSiteData) {
       const site = item as Feature<Point, VoltaSite>;
@@ -109,6 +108,7 @@ export class SearchScreen extends React.Component<Props, State> {
       const location = item as CitiesResponse;
       const { zipcode, state_abbr, city } = location;
 
+      /* prettier-ignore */
       return (
         <SearchResultItem
           onPress={() => this.handleSearchItemPress(location)}
@@ -128,6 +128,7 @@ export class SearchScreen extends React.Component<Props, State> {
       opacity: this.opacity,
     };
 
+    /* prettier-ignore */
     return (
       <Animated.View style={[styles.container, style || {}, opacityStyle]}>
         <SearchInput
