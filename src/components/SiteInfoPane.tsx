@@ -96,9 +96,10 @@ export class SiteInfoPane extends React.Component<Props, State> {
     ) {
       const { onDismiss } = this.props;
       onDismiss();
+
+      // a full view -> a mini view, or a mini view stays unchanged
     } else {
-      // going from full to mini view, by default, doesn't show the search dialog, so
-      // calling onSiteSummaryPress(true) wouldn't apply here
+      onSiteSummaryPress(false);
 
       Animated.spring(this.translateY, {
         toValue: 0,
