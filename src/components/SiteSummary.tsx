@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 
 import { ProgressBar } from './ProgressBar';
 import { colors } from '../values/colors';
+import { strings } from '../values/strings';
 import { HORIZONTAL_SPACE, VERTICAL_SPACE } from '../values/constants';
 import { VoltaSite } from '../values/types';
 
@@ -28,10 +29,9 @@ export const SiteSummary: React.FunctionComponent<Props> = props => {
         <View style={styles.progressBar}>
           <ProgressBar percent={available / total} />
         </View>
-
-        {/* prettier-ignore */}
+        
         <Text style={styles.chargers}>
-          {`${available} of ${total} charger${total >= 2 ? 's' : ''} available - ${level}`}
+          {strings.siteDescription(available, total, level)}
         </Text>
       </View>
     </TouchableWithoutFeedback>

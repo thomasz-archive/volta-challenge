@@ -6,8 +6,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
 import Color from 'color';
+
+import { FAB_ELEVATION } from '../values/constants';
 
 type Props = {
   backgroundColor: Color;
@@ -76,7 +77,7 @@ export class CircleButton extends React.Component<Props> {
         onPressOut={this.handlePressOut}
       >
         <Animated.View
-          elevation={8}
+          elevation={FAB_ELEVATION}
           style={[containerStyle, style]}
         >
           <AnimatedMaterialIcons

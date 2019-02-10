@@ -227,9 +227,11 @@ export class _MapScreen extends React.Component<Props, State> {
 
         {!isPermissionGranted && (
           <ErrorDialog
+            backgroundColor={colors.primary}
             error={strings.locationServiceDisabled}
             onDismiss={this.handleErrorDismiss}
             style={styles.error}
+            tintColor={colors.white}
             visible={isShowingError}
           />
         )}

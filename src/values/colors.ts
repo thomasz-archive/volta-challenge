@@ -1,5 +1,6 @@
 import Color from 'color';
 
+/* tslint:disable:no-magic-numbers */
 export const colors = {
   primary: Color('#46454A'),
   secondary: Color('#58D3F7'),

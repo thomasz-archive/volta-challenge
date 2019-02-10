@@ -4,29 +4,27 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { colors } from '../values/colors';
 
-export const SearchInput: React.FunctionComponent<TextInputProps> = props => {
-  /* prettier-ignore */
-  return (
-    <View style={styles.container}>
-      <MaterialIcons
-        name="search"
-        size={24}
-        style={styles.icon}
-      />
+/* prettier-ignore */
+export const SearchInput: React.FunctionComponent<TextInputProps> = props => (
+  <View style={styles.container}>
+    <MaterialIcons
+      name="search"
+      size={24}
+      style={styles.icon}
+    />
 
-      <TextInput
-        {...props}
-        autoCapitalize="none"
-        autoCorrect={false}
-        blurOnSubmit
-        clearButtonMode="while-editing"
-        returnKeyType="search"
-        style={styles.textInput}
-        underlineColorAndroid="transparent"
-      />
-    </View>
-  );
-};
+    <TextInput
+      {...props}
+      autoCapitalize="none"
+      autoCorrect={false}
+      blurOnSubmit
+      clearButtonMode="while-editing"
+      returnKeyType="search"
+      style={styles.textInput}
+      underlineColorAndroid="transparent"
+    />
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {

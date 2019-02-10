@@ -8,14 +8,15 @@ import {
   ViewStyle,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
-import { colors } from '../values/colors';
+import Color from 'color';
 
 type Props = {
   autoDismissInterval?: number;
+  backgroundColor: Color;
   error?: string;
   onDismiss: () => void;
   style?: StyleProp<ViewStyle>;
+  tintColor: Color;
   visible: boolean;
 };
 
@@ -60,29 +61,41 @@ export class ErrorDialog extends React.Component<Props, State> {
   };
 
   stopTimer = () => {
-    if (this.intervalId) clearInterval(this.intervalId);
+    if (this.intervalId) window.clearInterval(this.intervalId);
   };
 
   render() {
-    const { onDismiss, error, style, visible } = this.props;
+    const {
+      backgroundColor,
+      onDismiss,
+      error,
+      style,
+      tintColor,
+      visible,
+    } = this.props;
 
     if (!error || !visible) return null;
 
-    const opacityStyle = {
+    const dynamicStyle = {
+      backgroundColor: `${backgroundColor}`,
       opacity: this.opacity,
+    };
+
+    const tintStyle = {
+      color: `${tintColor}`,
     };
 
     /* prettier-ignore */
     return (
-      <Animated.View style={[styles.container, style, opacityStyle]}>
-        <Text style={styles.errorText}>{error}</Text>
+      <Animated.View style={[styles.container, style, dynamicStyle]}>
+        <Text style={[styles.errorText, tintStyle]}>{error}</Text>
 
         <View style={styles.iconContainer}>
           <MaterialIcons
             name="close"
             size={24}
             onPress={onDismiss}
-            style={styles.icon}
+            style={tintStyle}
           />
         </View>
       </Animated.View>
@@ -93,7 +106,6 @@ export class ErrorDialog extends React.Component<Props, State> {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: `${colors.primary}`,
     borderRadius: 8,
     flexDirection: 'row',
     margin: 16,
@@ -104,11 +116,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     marginLeft: 8,
   },
-  icon: {
-    color: `${colors.white}`,
-  },
   errorText: {
-    color: `${colors.white}`,
     flex: 1,
     lineHeight: 22,
   },

@@ -102,6 +102,8 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
     const {
       item: { key, value },
     } = info;
+    // regex code credit to:
+    // https://stackoverflow.com/questions/196972/convert-string-to-title-case-with-javascript
     const titleKey = key.replace(
       /\w\S*/g,
       word => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()

@@ -12,6 +12,7 @@ import cities from 'cities';
 
 import { VoltaSite, CitiesResponse } from '../values/types';
 import { colors } from '../values/colors';
+import { strings } from '../values/strings';
 import { Divider } from '../components/Divider';
 import { SearchInput } from '../components/SearchInput';
 import { SearchResultItem } from '../components/SearchResultItem';
@@ -25,7 +26,10 @@ type Props = {
   onDismiss: () => void;
   onSelect: (data: Feature<Point, VoltaSite> | CitiesResponse) => void;
   placeholder: string;
-  style: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
+};
+const DEFAULT_PROPS = {
+  style: {},
 };
 
 type State = {
@@ -34,6 +38,8 @@ type State = {
 };
 
 export class SearchScreen extends React.Component<Props, State> {
+  static defaultProps = DEFAULT_PROPS;
+
   opacity = new Animated.Value(0);
   state = {
     result: [],
@@ -87,7 +93,7 @@ export class SearchScreen extends React.Component<Props, State> {
       const {
         properties: { chargers, name },
       } = site;
-      const { available, total } = chargers[0];
+      const { available, total, level } = chargers[0];
 
       const descriptionStyle = {
         color: `${
@@ -101,7 +107,7 @@ export class SearchScreen extends React.Component<Props, State> {
           onPress={() => this.handleSearchItemPress(site)}
           row1Text={name}
           row2Style={descriptionStyle}
-          row2Text={`${available} of ${total} charger${total >= 2 ? 's' : ''} available`}
+          row2Text={strings.siteDescription(available, total, level)}
         />
       );
     } else {
@@ -130,7 +136,7 @@ export class SearchScreen extends React.Component<Props, State> {
 
     /* prettier-ignore */
     return (
-      <Animated.View style={[styles.container, style || {}, opacityStyle]}>
+      <Animated.View style={[styles.container, style, opacityStyle]}>
         <SearchInput
           blurOnSubmit
           onChangeText={this.handleChangeText}
