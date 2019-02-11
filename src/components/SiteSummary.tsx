@@ -6,6 +6,7 @@ import { colors } from '../values/colors';
 import { strings } from '../values/strings';
 import { HORIZONTAL_SPACE, VERTICAL_SPACE } from '../values/constants';
 import { VoltaSite } from '../values/types';
+import { getChargerCount } from '../utils/supercluster';
 
 const SUMMARY_HEIGHT = 184;
 
@@ -16,7 +17,7 @@ type Props = {
 
 export const SiteSummary: React.FunctionComponent<Props> = props => {
   const { onPress, site } = props;
-  const { available, total, level } = site.chargers[0];
+  const { available, total, level } = getChargerCount(site.chargers);
 
   /* prettier-ignore */
   return (

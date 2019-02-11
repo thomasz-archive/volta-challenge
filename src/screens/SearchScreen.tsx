@@ -16,6 +16,7 @@ import { strings } from '../values/strings';
 import { Divider } from '../components/Divider';
 import { SearchInput } from '../components/SearchInput';
 import { SearchResultItem } from '../components/SearchResultItem';
+import { getChargerCount } from '../utils/supercluster';
 
 const keyExtractor = (data: Feature<Point, VoltaSite> | CitiesResponse) =>
   (data as CitiesResponse).zipcode ||
@@ -93,7 +94,7 @@ export class SearchScreen extends React.Component<Props, State> {
       const {
         properties: { chargers, name },
       } = site;
-      const { available, total, level } = chargers[0];
+      const { available, total, level } = getChargerCount(chargers);
 
       const descriptionStyle = {
         color: `${

@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  View,
 } from 'react-native';
 
 import { colors } from '../values/colors';
@@ -126,36 +127,33 @@ export class SiteInfoPane extends React.Component<Props, State> {
 
     const { site } = this.props;
 
+    const translateYStyle = {
+      transform: [{ translateY: this.translateY }],
+    };
+
     /* prettier-ignore */
     return (
-      <Draggable
-        onTouchStart={this.handleTouchStart}
-        onTouchMove={({ top }) => this.handleTouchMove(top)}
-        onTouchEnd={({ top }) => this.handleTouchEnd(top)}
-      >
-        {({ handlers }) => {
-          const translateYStyle = {
-            transform: [{ translateY: this.translateY }],
-          };
-
-          /* prettier-ignore */
-          return (
-            <Animated.View
-              {...handlers}
-              style={[styles.container, positionStyle, translateYStyle]}
-            >
+      <Animated.View style={[styles.container, positionStyle, translateYStyle]}>
+        <Draggable
+          onTouchStart={this.handleTouchStart}
+          onTouchMove={({ top }) => this.handleTouchMove(top)}
+          onTouchEnd={({ top }) => this.handleTouchEnd(top)}
+        >
+          {({ handlers }) => (
+            /* prettier-ignore */
+            <View {...handlers}>
               <SiteSummary
                 onPress={this.handleSummaryPress}
                 site={site}
               />
+            </View>
+          )}
+        </Draggable>
 
-              <ScrollView style={styles.scrollView}>
-                <Text style={styles.text}>{strings.emptySiteInfoDetail}</Text>
-              </ScrollView>
-            </Animated.View>
-          );
-        }}
-      </Draggable>
+        <ScrollView style={styles.scrollView}>
+          <Text style={styles.text}>{strings.emptySiteInfoDetail}</Text>
+        </ScrollView>
+      </Animated.View>
     );
   }
 }

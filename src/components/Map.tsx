@@ -14,7 +14,7 @@ import { Supercluster, Cluster } from 'supercluster';
 import { MAP_BOX_API } from '../values/secrets';
 import { Annotation } from './Annotation';
 import { Permissions } from 'expo';
-import { supercluster } from '../utils/supercluster';
+import { supercluster, getChargerCount } from '../utils/supercluster';
 import { Bound, MapBoxOnChangeEvent, VoltaSite } from '../values/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../values/colors';
@@ -205,8 +205,7 @@ export class Map extends React.Component<Props, State> {
       onPress = this.handleRegionPress;
     } else {
       id = `SITE-${properties.id}`;
-      available = properties.chargers ? properties.chargers[0].available : 0;
-      total = properties.chargers ? properties.chargers[0].total : 0;
+      ({ available, total } = getChargerCount(properties.chargers));
       onPress = this.handleSingleSitePress;
     }
 
