@@ -4,16 +4,19 @@ import {
   BackHandler,
   Platform,
   SafeAreaView,
-  SectionList,
+  ScrollView,
   SectionListData,
-  SectionListRenderItemInfo,
   StyleSheet,
   Text,
   View,
   FlatList,
 } from 'react-native';
 import { Constants } from 'expo';
-import { NavigationScreenProp, NavigationState } from 'react-navigation';
+import {
+  NavigationScreenProp,
+  NavigationState,
+  NavigationEventSubscription,
+} from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { ReduxState } from '../reducers';
@@ -22,6 +25,17 @@ import { generateSummary } from '../utils/volta_utils';
 import { CircleButton } from '../components/CircleButton';
 import { colors } from '../values/colors';
 import { HORIZONTAL_SPACE, VERTICAL_SPACE } from '../values/constants';
+import { ChartBar } from '../components/ChartBar';
+
+type ListItem = {
+  title: string;
+  data: [
+    {
+      key: string;
+      value: number;
+    }
+  ];
+};
 
 type Props = {
   navigation: NavigationScreenProp<NavigationState>;
@@ -34,18 +48,18 @@ type MetricsPair = {
 };
 type State = {
   isLoading: boolean;
+  shouldPlayBarAnimations: boolean;
   siteMetrics: Array<SectionListData<MetricsPair>>;
 };
 
 class _SiteMetricsScreen extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  componentBlurListener: NavigationEventSubscription;
 
-    this.state = {
-      isLoading: true,
-      siteMetrics: [],
-    };
-  }
+  state = {
+    isLoading: true,
+    shouldPlayBarAnimations: true,
+    siteMetrics: [],
+  };
 
   componentDidMount() {
     const {
@@ -73,6 +87,8 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
       'hardwareBackPress',
       this.handleHardwareBackPress
     );
+
+    this.componentBlurListener.remove();
   }
 
   handleHardwareBackPress = () => {
@@ -87,72 +103,45 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
     goBack();
   };
 
-  renderMetricsSectionHeader = ({
-    section,
-  }: {
-    section: SectionListData<MetricsPair>;
-  }) => {
-    const { title } = section;
-
-    /* prettier-ignore */
-    return (
-      <Text style={styles.header}>
-        {title}
-      </Text>
-    );
-  };
-
-  renderMetricsSectionListItem = (
-    info: SectionListRenderItemInfo<MetricsPair>
-  ) => {
-    const {
-      item: { key, value },
-    } = info;
-    // // regex code credit to:
-    // // https://stackoverflow.com/questions/196972/convert-string-to-title-case-with-javascript
-    // const titleKey = key.replace(
-    //   /\w\S*/g,
-    //   word => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()
-    // );
-
-    /* prettier-ignore */
-    return (
-      <View style={styles.rowContainer}>
-        {}
-      </View>
-    );
-  };
-
-  renderListItem = ({ item }) => {
+  renderListItem = ({ item }: { item: ListItem }) => {
     const { title, data } = item;
 
-    const maxHeight = data.reduce(
+    const maxValue = data.reduce(
       (min, d) => (min < d.value ? d.value : min),
       -Infinity
     );
 
+    const { shouldPlayBarAnimations } = this.state;
+
+    /* prettier-ignore */
     return (
       <View>
-        <Text>{title}</Text>
-
-        <View style={styles.rowContainer}>
-          {data.map(d => (
-            <View
-              style={{
-                flex: 1,
-                marginRight: 16,
-              }}
-            >
-              <View
-                style={{
-                  backgroundColor: `${colors.secondary}`,
-                  height: (100 * d.value) / maxHeight,
-                }}
-              />
-              <Text>{d.key}</Text>
-            </View>
-          ))}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeaderText}>
+            {title}
+          </Text>
         </View>
+
+        {/* <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        > */}
+        <View style={{
+          flexDirection: 'row',
+        }}>
+          {data.map(({ key, value }) => (
+            <ChartBar
+              key={key}
+              label={key}
+              navigation={this.props.navigation}
+              ratio={value / maxValue}
+              shouldPlayBarAnimations={shouldPlayBarAnimations}
+              style={{ flex: 1 }}
+              value={value}
+            />
+          ))}
+          </View>
+        {/* </ScrollView> */}
       </View>
     );
   };
@@ -160,31 +149,14 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
   render() {
     const { isLoading, siteMetrics } = this.state;
 
-    const modifiedData = siteMetrics.map(metric => ({
-      ...metric,
-      data: [metric.title],
-    }));
-
-    console.log('================================================');
-    console.log('siteMetrics:', siteMetrics);
-    console.log('================================================');
-
     if (isLoading) return <ActivityIndicator />;
 
     /* prettier-ignore */
     return (
       <SafeAreaView style={styles.safeAreaView}>
-        {/* <SectionList
-          keyExtractor={item => item.key}
-          renderItem={this.renderMetricsSectionListItem}
-          renderSectionHeader={this.renderMetricsSectionHeader}
-          sections={modifiedData}
-          showsVerticalScrollIndicator={false}
-          stickySectionHeadersEnabled={false}
-        /> */}
-
         <FlatList
           data={siteMetrics}
+          keyExtractor={({ title }) => title}
           renderItem={this.renderListItem}
         />
 
@@ -214,26 +186,20 @@ const styles = StyleSheet.create({
     marginTop: statusBarHeight + VERTICAL_SPACE,
     marginHorizontal: HORIZONTAL_SPACE,
   },
-  header: {
-    color: `${colors.secondary}`,
-    fontSize: 20,
-    paddingVertical: 8,
-    textTransform: 'uppercase',
+  sectionHeader: {
+    backgroundColor: `${colors.black.alpha(0.1)}`,
+    padding: 4,
+    marginVertical: 12,
   },
-  listItem: {
+  sectionHeaderText: {
     color: `${colors.primary}`,
-    fontSize: 15,
-    lineHeight: 26,
+    textTransform: 'uppercase',
   },
   circleButton: {
     bottom: 48,
     position: 'absolute',
     right: 16,
     zIndex: 1,
-  },
-  rowContainer: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
   },
 });
 
