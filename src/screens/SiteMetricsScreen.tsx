@@ -9,6 +9,8 @@ import {
   SectionListRenderItemInfo,
   StyleSheet,
   Text,
+  View,
+  FlatList,
 } from 'react-native';
 import { Constants } from 'expo';
 import { NavigationScreenProp, NavigationState } from 'react-navigation';
@@ -36,10 +38,14 @@ type State = {
 };
 
 class _SiteMetricsScreen extends React.Component<Props, State> {
-  state = {
-    isLoading: true,
-    siteMetrics: [],
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isLoading: true,
+      siteMetrics: [],
+    };
+  }
 
   componentDidMount() {
     const {
@@ -102,36 +108,84 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
     const {
       item: { key, value },
     } = info;
-    // regex code credit to:
-    // https://stackoverflow.com/questions/196972/convert-string-to-title-case-with-javascript
-    const titleKey = key.replace(
-      /\w\S*/g,
-      word => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()
-    );
+    // // regex code credit to:
+    // // https://stackoverflow.com/questions/196972/convert-string-to-title-case-with-javascript
+    // const titleKey = key.replace(
+    //   /\w\S*/g,
+    //   word => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()
+    // );
 
     /* prettier-ignore */
     return (
-      <Text style={styles.listItem}>
-        {` \u2022  ${titleKey}: ${value}`}
-      </Text>
+      <View style={styles.rowContainer}>
+        {}
+      </View>
+    );
+  };
+
+  renderListItem = ({ item }) => {
+    const { title, data } = item;
+
+    const maxHeight = data.reduce(
+      (min, d) => (min < d.value ? d.value : min),
+      -Infinity
+    );
+
+    return (
+      <View>
+        <Text>{title}</Text>
+
+        <View style={styles.rowContainer}>
+          {data.map(d => (
+            <View
+              style={{
+                flex: 1,
+                marginRight: 16,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: `${colors.secondary}`,
+                  height: (100 * d.value) / maxHeight,
+                }}
+              />
+              <Text>{d.key}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
     );
   };
 
   render() {
     const { isLoading, siteMetrics } = this.state;
 
+    const modifiedData = siteMetrics.map(metric => ({
+      ...metric,
+      data: [metric.title],
+    }));
+
+    console.log('================================================');
+    console.log('siteMetrics:', siteMetrics);
+    console.log('================================================');
+
     if (isLoading) return <ActivityIndicator />;
 
     /* prettier-ignore */
     return (
       <SafeAreaView style={styles.safeAreaView}>
-        <SectionList
+        {/* <SectionList
           keyExtractor={item => item.key}
           renderItem={this.renderMetricsSectionListItem}
           renderSectionHeader={this.renderMetricsSectionHeader}
-          sections={siteMetrics}
+          sections={modifiedData}
           showsVerticalScrollIndicator={false}
           stickySectionHeadersEnabled={false}
+        /> */}
+
+        <FlatList
+          data={siteMetrics}
+          renderItem={this.renderListItem}
         />
 
         <CircleButton
@@ -176,6 +230,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     zIndex: 1,
+  },
+  rowContainer: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
   },
 });
 

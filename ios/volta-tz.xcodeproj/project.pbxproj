@@ -152,7 +152,7 @@
 				TargetAttributes = {
 					B56386401DB9693800A0598C = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = 7JJ5N57V4M;
+						DevelopmentTeam = L398DL783R;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -411,10 +411,10 @@
 			baseConfigurationReference = 2C1548D9E4CB1AEFA5CCAE6D /* Pods-volta-tz.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 7JJ5N57V4M;
+				DEVELOPMENT_TEAM = L398DL783R;
 				INFOPLIST_FILE = "$(SRCROOT)/volta-tz/Supporting/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.thomaszhu.voltachallenge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thomaszhu.voltachallengetz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -425,10 +425,10 @@
 			baseConfigurationReference = A47FE4D7F70906B7DC8CE39B /* Pods-volta-tz.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 7JJ5N57V4M;
+				DEVELOPMENT_TEAM = L398DL783R;
 				INFOPLIST_FILE = "$(SRCROOT)/volta-tz/Supporting/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.thomaszhu.voltachallenge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thomaszhu.voltachallengetz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

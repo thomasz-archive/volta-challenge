@@ -212,6 +212,7 @@ export class _MapScreen extends React.Component<Props, State> {
             onDismiss={this.handleSiteSummaryDismiss}
             onSiteSummaryPress={this.handleSiteSummaryPress}
             site={currentSite}
+            style={styles.siteInfoPane}
           />
         )}
 
@@ -264,6 +265,9 @@ const styles = StyleSheet.create({
   },
   error: {
     backgroundColor: `${colors.primary.lighten(0.35)}`,
+  },
+  siteInfoPane: {
+    marginHorizontal: 8,
   },
 });
 

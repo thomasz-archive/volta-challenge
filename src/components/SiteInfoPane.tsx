@@ -3,9 +3,11 @@ import {
   Animated,
   Dimensions,
   ScrollView,
+  StyleProp,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
 } from 'react-native';
 
 import { colors } from '../values/colors';
@@ -25,6 +27,7 @@ type Props = {
   onDismiss: () => void;
   onSiteSummaryPress: (isShowingFullSummary: boolean) => void;
   site: VoltaSite;
+  style: StyleProp<ViewStyle>;
 };
 
 type State = {};
@@ -120,20 +123,17 @@ export class SiteInfoPane extends React.Component<Props, State> {
 
   render() {
     const { height } = Dimensions.get('window');
-    const positionStyle = {
+    const dynamicStyle = {
       bottom: SUMMARY_HEIGHT - height * 0.8,
       height: height * 0.8,
-    };
-
-    const { site } = this.props;
-
-    const translateYStyle = {
       transform: [{ translateY: this.translateY }],
     };
 
+    const { site, style } = this.props;
+
     /* prettier-ignore */
     return (
-      <Animated.View style={[styles.container, positionStyle, translateYStyle]}>
+      <Animated.View style={[styles.container, dynamicStyle, style]}>
         <Draggable
           onTouchStart={this.handleTouchStart}
           onTouchMove={({ top }) => this.handleTouchMove(top)}
