@@ -1,6 +1,16 @@
 # Volta Challenge
 <img width="100" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/icon.png">
 
+#### Challenges
+- [x] Display charging sites on the map
+- [x] Cluster data points (e.g., site data) on the map
+- [x] Show the number of available chargers (out of total chargers)
+- [x] Add site detail popup
+- [x] Render a searchable table of the sites
+- [x] Create a high-level site metric screen
+- [x] Render custom drawer sidebar
+- [x] Create animated bar chart
+
 <hr />
 
 ## Getting started
@@ -22,11 +32,11 @@
       2. Build the app
 
 ## Preview
-<img width="450" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/preview.gif">
+[App Demo](https://youtu.be/4zSuM9sHpsc) (*Due to the length of the demo, a GIF takes too long to load, so it's not shown here.*)
 
 ||||
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/splash.png">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/01.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/02.PNG">|
+|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/00.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/01.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/02.PNG">|
 |<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/03.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/04.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/05.PNG">|
 |<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/06.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/07.PNG">|<img width="250" src="https://github.com/thomashzhu/volta-challenge/raw/master/assets/screenshots/08.PNG">|
 
@@ -38,14 +48,6 @@
 - react-native-progress-circle
 - axios
 - cities
-
-## Challenges
-- [x] Display charging sites on the map
-- [x] Cluster data points (e.g., site data) on the map
-- [x] Show the number of available chargers (out of total chargers)
-- [x] Add site detail popup
-- [x] Render a searchable table of the sites
-- [x] Create a high-level site metric screen
 
 ## Feedback
 
