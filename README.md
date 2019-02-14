@@ -8,8 +8,8 @@
 - [x] Add site detail popup
 - [x] Render a searchable table of the sites
 - [x] Create a high-level site metric screen
-- [x] Render custom drawer sidebar
-- [x] Create animated bar chart
+- [x] (**NEW**) Render custom drawer sidebar
+- [x] (**NEW**) Create animated bar chart
 
 <hr />
 
