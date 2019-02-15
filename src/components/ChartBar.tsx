@@ -20,9 +20,8 @@ const BAR_WIDTH = 40;
 
 type Props = {
   label: string;
-  navigation: NavigationScreenProp<NavigationState>;
+  navigation?: NavigationScreenProp<NavigationState>;
   ratio: number;
-  shouldPlayBarAnimations: boolean;
   style?: StyleProp<ViewStyle>;
   value: number;
 };
@@ -35,17 +34,20 @@ type State = {};
 export class ChartBar extends React.Component<Props, State> {
   static defaultProps = DEFAULT_PROPS;
 
-  subscriptions: NavigationEventSubscription[];
+  subscriptions: NavigationEventSubscription[] = [];
   scaleY = new Animated.Value(1);
 
   componentDidMount() {
     this.playAnimation();
 
     const { navigation } = this.props;
-    this.subscriptions = [
-      navigation.addListener('didFocus', this.componentDidFocus),
-      navigation.addListener('willBlur', this.componentWillBlur),
-    ];
+
+    if (navigation) {
+      this.subscriptions = [
+        navigation.addListener('didFocus', this.componentDidFocus),
+        navigation.addListener('willBlur', this.componentWillBlur),
+      ];
+    }
   }
 
   componentWillUnmount() {

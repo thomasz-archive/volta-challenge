@@ -48,7 +48,6 @@ type MetricsPair = {
 };
 type State = {
   isLoading: boolean;
-  shouldPlayBarAnimations: boolean;
   siteMetrics: Array<SectionListData<MetricsPair>>;
 };
 
@@ -57,7 +56,6 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
 
   state = {
     isLoading: true,
-    shouldPlayBarAnimations: true,
     siteMetrics: [],
   };
 
@@ -111,8 +109,6 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
       -Infinity
     );
 
-    const { shouldPlayBarAnimations } = this.state;
-
     /* prettier-ignore */
     return (
       <View>
@@ -135,7 +131,6 @@ class _SiteMetricsScreen extends React.Component<Props, State> {
               label={key}
               navigation={this.props.navigation}
               ratio={value / maxValue}
-              shouldPlayBarAnimations={shouldPlayBarAnimations}
               style={{ flex: 1 }}
               value={value}
             />
