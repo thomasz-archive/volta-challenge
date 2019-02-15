@@ -10,6 +10,7 @@
 - [x] Create a high-level site metric screen
 - [x] (**NEW**) Render custom drawer sidebar
 - [x] (**NEW**) Create animated bar chart
+- [x] (**NEW**) Create custom progress ring
 
 <hr />
 
@@ -45,7 +46,6 @@
 - react navigation
 - redux & react-redux
 - react-native-mapbox-gl
-- react-native-progress-circle
 - axios
 - cities
 
