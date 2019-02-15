@@ -30,7 +30,7 @@ export const SiteSummary: React.FunctionComponent<Props> = props => {
         <View style={styles.progressBar}>
           <ProgressBar percent={available / total} />
         </View>
-        
+
         <Text style={styles.chargers}>
           {strings.siteDescription(available, total, level)}
         </Text>

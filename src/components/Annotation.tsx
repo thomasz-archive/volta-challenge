@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
-import ProgressCircle from 'react-native-progress-circle';
 import { Feature, GeoJsonProperties, Point } from 'geojson';
 
 import { colors } from '../values/colors';
 import { VoltaSite } from '../values/types';
+import { ProgressRing } from './ProgressRing';
 
 const ANNOTATION_SIZE = 48;
 
@@ -50,15 +50,16 @@ export const Annotation: React.FunctionComponent<Props> = ({
       >
         <View>
           <View style={styles.annotationContainer}>
-            <ProgressCircle
-              bgColor={`${colors.black.alpha(0.8)}`}
-              borderWidth={5}
-              color={`${colors.secondary}`}
+            <ProgressRing
+              backgroundColor={colors.black.alpha(0.8)}
+              ringWidth={5}
+              ringActiveColor={colors.secondary}
+              ringInactiveColor={colors.hint}
               percent={(availableStations / totalStations) * 100}
-              radius={ANNOTATION_SIZE * 0.4}
+              size={ANNOTATION_SIZE * 0.8}
             >
               <Text style={styles.counterText}>{`${availableStations}`}</Text>
-            </ProgressCircle>
+            </ProgressRing>
           </View>
 
           {isSite && (
