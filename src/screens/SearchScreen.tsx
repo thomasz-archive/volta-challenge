@@ -59,7 +59,9 @@ export class SearchScreen extends React.Component<Props, State> {
     const { data } = this.props;
     const input = searchValue.toLowerCase();
     const sitesResult = searchValue
-      ? data.filter(d => d.properties.name.toLowerCase().indexOf(input) !== -1)
+      ? data
+          .filter(d => d.properties.name.toLowerCase().indexOf(input) !== -1)
+          .filter(d => d.properties.chargers)
       : [];
 
     const zipCode = Number(searchValue);

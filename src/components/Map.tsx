@@ -204,6 +204,9 @@ export class Map extends React.Component<Props, State> {
       total = properties.totalStations || 0;
       onPress = this.handleRegionPress;
     } else {
+      // chargers are under constructions - no need to show on map
+      if (!properties.chargers) return null;
+
       id = `SITE-${properties.id}`;
       ({ available, total } = getChargerCount(properties.chargers));
       onPress = this.handleSingleSitePress;
